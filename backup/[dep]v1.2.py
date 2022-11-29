@@ -2,11 +2,9 @@
 # TP067553 / TP060486
 
 # Default return status code:
-# 0: Task failed, 1: Task completed, 2: Return to menu, 3: Not ready(WIP only)
-# Release: V2.2.20221129 [added datetime as requested, fix spelling errors]
+# 0: Task failed, 1: Task completed, 2: Return to menu, 3: Not ready
 
 import os
-import datetime
 
 # Admin UI, restricted to admin only
 # require username as variable
@@ -84,7 +82,7 @@ def login(opt):
     elif opt == 2 :
         udb = 'users.txt'
     else:
-        print('No role defined. Returning to Main UI\n')
+        print('No role defined. Returning to Main UI')
         return 0
     uName = dettol(input('Please enter your username:\n'))
     print('Checking database... Please Wait...\n')
@@ -97,13 +95,10 @@ def login(opt):
         return 0
     if (uid != '') and (uPwd != ''):
         if uPwd == udt[1]:
-            try:
-                if len(udt) > 8:
-                    return tiering(udt[8], uName)
-                else:
-                    return custui(uName)
+            try: 
+                return tiering(udt[8], uName)
             except:
-                return 0
+                return custui(uName)
         else:
             print('Invalid username or password. Please check your input and try again later.\nReturning to Main UI\n')
             return 0
@@ -119,10 +114,9 @@ def loginhandler():
     try:
         x = int(x)
     except:
-        print('Invalid input. Please try again\n')
+        print('Invalid input. Please try again')
         loginhandler()
     if login(x) == 0:
-        print('Error occurred. Please re-login and retry your operation.\n')
         mainui()
 
 # Register Page for customer
@@ -134,9 +128,9 @@ def custreg():
         print('Please wait while we check the username availability...\n')
         try:
             getcolumn('customers.txt', 0).index(regname)
-            print('Username already exist! Please proceed to login. Returning to Main UI now.\n')
+            print('Username already exist! Please proceed to login. Returning to Main UI now.')
             return 0
-        except:
+        except ValueError:
             print('Username available. Please proceed for next step.')        
         pwd = baseStr + 'preferred password:'
         email = baseStr + 'email address:'
@@ -149,7 +143,7 @@ def custreg():
         details = theMagic(bStr)
         if (e := writeto('customers.txt', details)) == 1:
             print('User "', regname, '" has successfully created!\n')
-            return custui(regname)
+            custui(regname)
         else:
             print('User unable to create.', e)
             print("Please check if special symbols exists or the database file has been modified. Returning to Main UI.\n")
@@ -182,11 +176,11 @@ def delmanSubMenu():
             elif c == 3:
                 return 2
             else:
-                print('No input detected. Returning to Admin UI\n')
+                print('No input detected. Returning to Admin UI')
                 return 0
         except:
             print('Username not found! Please make sure you entered the correct username, username are capital sensitive.\n')
-            d = int(input('Do you want to create a new user or retry input username?\n1. Create new user\n2. Retry username\n3. Return to Admin UI\n'))
+            d = int(input('Do you want to create a new user or retry input username?\n1. Create new user\n2. Retry username\3. Return to Admin UI\n'))
             if d == 1:
                 delmanNew(staffname)
             elif d == 2:
@@ -194,7 +188,7 @@ def delmanSubMenu():
             elif d == 3:
                 return 2
             else:
-                print('No input detected. Returning to Admin UI\n')
+                print('No input detected. Returning to Admin UI')
                 return 0
     return 2
     
@@ -212,7 +206,7 @@ def delmanNew(x):
     bStr = [x, pwd, fname, phone, addr, email, plh, plh, role] #username;password;fullname;phone number;address;email;placeholder;placeholder;role.
     details = theMagic(bStr)
     if (e := writeto('users.txt', details)) == 1:
-        print('User "', x, '" has successfully created!\n')
+        print('User "', x, '"has successfully created!\n')
         return 1
     else:
         print('User unable to create.', e)
@@ -235,13 +229,13 @@ def delmanManage(x, y):
     if confirm == 'Y':
         try:
             updaterow('users.txt', x, lst)
-            print('User "', y,'" has been successfully modified with new details.\n')
+            print('User "', y,'" has been successfully modified with new details.')
             return 1
         except:
-            print("An error occurred, please try again later, or check your permission settings.\n")
+            print("An error occurred, please try again later, or check your permission settings.")
             return 0
     else:
-        print('Action aborted due to incorrect confirmation. Returning to Admin UI.\n')
+        print('Action aborted due to incorrect confirmation. Returning to Admin UI.')
         return 0
 
 # Delete staff user by Admin
@@ -257,13 +251,13 @@ def delmanByebye(x, y):
                         if ln != x:
                             f.write(line)
                         ln += 1
-            print('User "', y,'" has been successfully deleted.\n')
+            print('User "', y,'" has been successfully deleted.')
             return 1
         except:
-            print("An error occurred, please try again later, or check your permission settings.\n")
+            print("An error occurred, please try again later, or check your permission settings.")
             return 0
     else: 
-        print('Action aborted due to incorrect confirmation. Returning to Admin UI.\n')
+        print('Action aborted due to incorrect confirmation. Returning to Admin UI.')
         return 0
 
 # Search Delivery Man by Admin
@@ -279,12 +273,12 @@ def delmanSearch():
             print('Address:', info[4])
             print('Email address:', info[5])
             print("User's: role:", info[8])
-            print('Search complete. Returning to Admin UI.\n')
+            print('Search complete. Returning to Admin UI.')
             return 1
-        except:
+        except ValueError:
             print('Username not found! Please make sure you entered the correct username, username are capital sensitive.\n')
             return 0
-    print('Queried username is too short! Please input query keyword with more than 4 characters. Returning to Admin UI.\n')
+    print('Queried username is too short! Please input query keyword with more than 4 characters. Returning to Admin UI.')
     return 0
 
 # Assign Delivery Man to order(s) by Admin
@@ -322,25 +316,25 @@ def addCat():
         catID = [cat.lower() for cat in getcolumn(cfile, 1)].index(newCat.lower())
         print('Category "', newCat, '" already exist with Category ID "', catID, '", please use the existing category.\n Returning to Admin UI.\n')
         return 0
-    except:
+    except ValueError:
         print('Category name available, please proceed to enter details for new category.')
     catDes = input('Enter description for new category (Not more than 50 words):')
     newcatID = int(getcolumn(cfile, 0)[-1]) + 1
     plh = 0
     catList = [newcatID, newCat, catDes, plh] #categoryID;category name;description;placeholder.
     if (e := writeto(cfile, catList)) == 1:
-        print('Category "', newCat, '" has successfully created!\nCategory ID:', newcatID, '\n')
+        print('Category "', newCat, '" has successfully created!\nCategory ID:', newcatID)
         return 1
     else:
         print('Category unable to create.', e)
-        print("Please check if special symbols exists or the database file has been modified. Returning to Main UI.\n")
+        print("Please check if special symbols exists or the database file has been modified. Returning to Main UI.")
         return 0
 
 # Modify category function by Admin
 def modCat():
     cfile = 'category.txt'
     catname = input('Please enter category name:')
-    print('Please wait while system is retrieving data...\n')
+    print('Please wait while system is retrieving data...')
     try:
         cid = getcolumn(cfile, 1).index(catname)
         dt = getrow(cfile, cid)
@@ -351,16 +345,16 @@ def modCat():
         if confirm == 'Y':
             try:
                 updaterow(cfile, cid, lst)
-                print('Category "', n,'" has been successfully modified with new data.\n')
+                print('Category "', n,'" has been successfully modified with new data.')
                 return 1
             except:
-                print("An error occurred, please try again later, or check your permission settings.\n")
+                print("An error occurred, please try again later, or check your permission settings.")
                 return 0
         else:
-            print('Action aborted due to incorrect confirmation. Returning to Admin UI.\n')
+            print('Action aborted due to incorrect confirmation. Returning to Admin UI.')
             return 2
-    except:
-        print('Category not found! Make sure you have entered the exact same name of the category.\nReturning to Admin UI.\n')
+    except ValueError:
+        print('Category not found! Make sure you have entered the exact same name of the category.\nReturning to Admin UI.')
         return 0
 
 # Add new product function by Admin
@@ -371,9 +365,9 @@ def addItem():
     newItem = input('Please enter new item name:')
     try:
         productID = [i.lower() for i in getcolumn(pfile, 1)].index(newItem.lower())
-        print('Product "', newItem, '" already exist with Category ID "', productID, '", please choose other name or use the existing entry.\n Returning to Admin UI.\n')
+        print('Product "', newItem, '" already exist with Category ID "', productID, '", please choose other name or use the existing entry.\n Returning to Admin UI.')
         return 0
-    except:
+    except ValueError:
         print('Product name available. Please proceed to choose the relevant category from list below.')
     catName = getcolumn(cfile, 1)
     catID = getcolumn(cfile, 0)
@@ -388,11 +382,11 @@ def addItem():
     newitemID = int(getcolumn(pfile, 0)[-1]) + 1
     itemList = [newitemID, newItem, itemDes, itemStk, 0, itemRM, selCat] #productID;product title;product description;stock quantity;sold quantity;retail price;categoryID.
     if (e := writeto(pfile, itemList)) == 1:
-        print('New product "', newItem, '" has successfully created!\nProduct ID:', newitemID, '\n')
+        print('New product "', newItem, '"has successfully created!\nProduct ID:', newitemID)
         return 1
     else:
         print('Product unable to create.', e)
-        print("Please check if special symbols exists or the database file has been modified. Returning to Admin UI.\n")
+        print("Please check if special symbols exists or the database file has been modified. Returning to Admin UI.")
         return 0
 
 # Modify item details function by Admin
@@ -413,16 +407,16 @@ def modItem():
         if confirm == 'Y':
             try:
                 updaterow(pfile, iid, lst)
-                print('Product "', n,'" has been successfully modified with new data.\n')
+                print('Product "', n,'" has been successfully modified with new data.')
                 return 1
             except:
-                print("An error occurred, please try again later, or check your permission settings.\n")
+                print("An error occurred, please try again later, or check your permission settings.")
                 return 0
         else:
-            print('Action aborted due to incorrect confirmation. Returning to Admin UI.\n')
+            print('Action aborted due to incorrect confirmation. Returning to Admin UI.')
             return 2
     except:
-        print('Item not found! Make sure you have entered the exact same name of the product.\nReturning to Admin UI.\n')
+        print('Item not found! Make sure you have entered the exact same name of the product.\nReturning to Admin UI.')
         return 0
     
 
@@ -440,7 +434,7 @@ def listCat():
         print('Successfully retrieved all data for ', cfile, '.\n')
         return 1    
     except:
-        print("An error occurred, please try again later, or check the files integrity.\n")
+        print("An error occurred, please try again later, or check the files integrity.")
         return 0
 
 # Display products based on category function
@@ -468,11 +462,10 @@ def listItembyCat():
             print('Product stock quantity: ', dt[3])
             print('Product sold quantity: ', dt[4])
             print('Product retail price: ', dt[5])
-            print('\n')
-        print('End of database. Returning to Admin UI\n')
+        print('End of database. Returning to Admin UI')
         return 1
     except:
-        print('An error occurred. Please check file permission or restart the program. Returning to Admin UI\n')
+        print('An error occurred. Please check file permission or restart the program. Returning to Admin UI')
         return 0
 
 # Display all items
@@ -493,7 +486,7 @@ def listallItem():
         print('Successfully retrieved all data for', pfile, '.\n')
         return 1    
     except:
-        print("An error occurred, please try again later, or check the files integrity.\n")
+        print("An error occurred, please try again later, or check the files integrity.")
         return 0
 
 # Item sub menu by Admin
@@ -507,7 +500,7 @@ def itemSubMenu(u):
         modItem()
         adminui(u)
     else:
-        print('An case error occurred. Please try again later. Returning to Admin UI\n')
+        print('An case error occurred. Please try again later. Returning to Admin UI')
         adminui(u)
     adminui(u)
 
@@ -527,10 +520,10 @@ def placeOrder(u, items = [], trm = 0):
                 addtoCart(u, sel, qtt, rm, items, trm)
                 return 1
             else:
-                print('Quantity cannot be more than available stock! Return to customer page.\n')
+                print('Quantity cannot be more than available stock! Return to customer page.')
                 return 0
     except:
-        print('An error occurred. Please make you have entered correct input. Returning to Customer page.\n')
+        print('An error occurred. Please make you have entered correct input. Returning to Customer page.')
         return 0
 
 # Add to cart/checkout helper function for placeOrder() by Customer
@@ -558,16 +551,16 @@ def addtoCart(usr, pid, qtt, rm, items, trm, opt = 0):
         elif opt == 3:
             confirm = input('Are you sure to discard cart? Once done no revert can be done(Y/n)):')
             if confirm == "Y":
-                print('Discarding cart. Will return to customer home page\n')
+                print('Discarding cart. Will return to customer home page')
                 return 2
             else:
-                print('Invalid confirmation, will return back to order page without new item added.\n')
+                print('Invalid confirmation, will return back to order page without new item added.')
                 placeOrder(usr, items, trm)
         else:
-            print('No valid options. Returning to order page with existing cart items.\n')
+            print('No valid options. Returning to order page with existing cart items.')
             placeOrder(usr, items, trm)
     except:
-        print('An error occurred, Please try again later. Saving current cart as unpaid order.\n')
+        print('An error occurred, Please try again later. Saving current cart as unpaid order.')
         addtoCart(usr, 0, 0, 0, items, trm, 2)
 
 # Make payment function by Customer
@@ -606,10 +599,10 @@ def makePayment(u):
                 odt = getrow(odb, int(opt))
                 odt[3] = str(pid)
                 updaterow(odb, int(opt), odt)
-                print('Payment successful! Returning to home page.\n')
+                print('Payment successful! Returning to home page.')
                 return 1
     except:
-        print('Error occurred. Please try again later.\n')
+        print('Error occurred. Please try again later.')
         return 0
 
 # List out all assigned delivery order by Staff
@@ -637,12 +630,12 @@ def listallDelOrder(u):
                 print('Staff in charge: ', dt[9])
                 print('\n')
         else:
-            print('No order found. Returning to Staff UI.\n')
+            print('No order found. Returning to Staff UI.')
             return 2
         print('Delivery order query completed.\n')
         return 1
     except:
-        print('An error occurred, please try again later. Returning to Staff UI.\n')
+        print('An error occurred, please try again later. Returning to Staff UI.')
         return 0
 
 # Update order delivery status by Staff
@@ -655,15 +648,15 @@ def orderUpdate(u):
         try:
             dt = getrow(odb, query)
         except:
-            print('Order not found, please check your input. Returning to Staff UI.\n')
+            print('Order not found, please check your input. Returning to Staff UI.')
             return 0
     else:
         print('No input detected. Returning to Staff UI')
         return 2
     if (dt[7] != '0') and (str(dt[6] == '12')):
-        print('Order already completed, no further update required. Returning to Staff UI\n')
+        print('Order already completed, no further update required. Returning to Staff UI')
         return 2
-    action = int(input('Please enter the current status for the order:\n1. pending\n2. delivering\n3. completed\n'))
+    action = int(input('Please enter the current status for the order:\n1. pending\n2. delivering\n3. completed\n')) 
     if action == 1:
         dt[6] = '10'
     elif action == 2:
@@ -673,10 +666,10 @@ def orderUpdate(u):
         dt[7] = gettime()
     try:
         updaterow(odb, query, dt)
-        print('Order ', query, 'successfully updated. Returning to Staff UI\n')
+        print('Order ', query, 'successfully updated. Returning to Staff UI')
         return 1
     except:
-        print('An error occurred, please try again later. Returning to Staff UI.\n')
+        print('An error occurred, please try again later. Returning to Staff UI.')
         return 0    
 
 # Update order feedback by Staff
@@ -692,16 +685,15 @@ def orderFeedback(u):
             fb = int(input('1. Very bad\n2. Bad\n3. Neutral\n4. Good\n5. Very good\n'))
             if 0 < fb < 6 :
                 dt[8] = fb
-                print('Feedback successfully recorded. Returning to Staff UI.\n')
                 return updaterow(odb, oid, dt)
             else:
-                print('Invalid input. Make sure its within the given range. Returning to Staff UI\n')
+                print('Invalid input. Make sure its within the given range. Returning to Staff UI')
                 return 0
         else:
             print('Rating has been given to this order. No further amendment allowed.\nReturning to Staff UI.\n')
             return 0
     except:
-        print('Invalid Order ID. Please check the input and try again. Returning to Staff UI.\n')
+        print('Invalid Order ID. Please check the input and try again. Returning to Staff UI.')
         return 0
 
 # Search for customer order by Admin
@@ -713,10 +705,10 @@ def custOrderQuery():
             displayOrder(getrow(odb, query))
             print('Query completed. Returning to Admin UI.')
             return 1
-        except:
+        except ValueError:
             print('Order not found! Please make sure you entered the correct order ID with numbers only.\n')
             return 0
-    print('No query detected. Returning to Admin UI.\n')
+    print('No query detected. Returning to Admin UI.')
     return 0
 
 # Search for customer payment by Admin
@@ -726,12 +718,12 @@ def custPaymentQuery():
     try:
         if query >= 0:
             displayPayment(getrow(pdb, query))
-            print('Query completed. Returning to Admin UI.\n')
+            print('Query completed. Returning to Admin UI.')
             return 1
         else:
             print('Payment record not found! Please make sure you entered the correct payment ID with numbers only.\n')
             return 0
-    except:
+    except ValueError:
         print('No query detected. Returning to Admin UI.\n')
         return 0
     
@@ -744,10 +736,10 @@ def listcustOrder():
         olist = getcolumn(odb, 0)
         for oid in olist:
             displayOrder(getrow(odb, oid))
-        print('Listing completed. Returning to Main UI.\n')
+        print('Listing completed. Returning to Main UI.')
         return 1
     except:
-        print('An error occurred. Returning to Admin UI.\n')        
+        print('An error occurred. Returning to Admin UI.')        
         return 0
 
 # List out all customer order by Admin
@@ -758,10 +750,10 @@ def listcustPayment():
         plist = getcolumn(pdb, 0)
         for pid in plist:
             displayPayment(getrow(pdb, pid))
-        print('Listing completed. Returning to Main UI.\n')
+        print('Listing completed. Returning to Main UI.')
         return 1
     except:
-        print('An error occurred. Returning to Admin UI.\n')        
+        print('An error occurred. Returning to Admin UI.')        
         return 0
 
 # Determine choices from each UI function
@@ -797,8 +789,7 @@ def fnsorter(u, o, r):
         elif o == 0:
             logout()
         else:
-            return adminui(u)   
-        criterr()  
+            criterr()  
     if r.find('staff') != -1:
         if o == 1:
             listallDelOrder(u)     # View/Select Order for Delivery
@@ -812,8 +803,7 @@ def fnsorter(u, o, r):
         elif o == 0:
             logout()
         else:
-            return staffui(u) 
-        criterr()
+            criterr() 
     if r.find('cust') != -1:
         if o == 1:
             listCat()   # View category details
@@ -833,8 +823,7 @@ def fnsorter(u, o, r):
         elif o == 0:
             logout()
         else:
-            return custui(u) 
-        criterr()
+            criterr()
     if r.find('guest') != -1:
         if o == 1:
             listallItem()
@@ -844,12 +833,11 @@ def fnsorter(u, o, r):
         elif o == 3:
             custreghandler()
         elif o == 0:
-            print('Have a nice day. Goodbye.\n')
+            print('Have a nice day. Goodbye.')
             forcequit()
         else:
-            return mainui() 
-        criterr()  
-    print('Exception occurred. Exiting program now\n')
+            criterr()   
+    print('Exception occurred. Exiting program now')
     forcequit()
 
 # To print out order details
@@ -858,11 +846,8 @@ def displayOrder(l):
     c = 0
     column = ['Order ID: ', 'Order created time: ', 'Products: ','Associated payment ID: ', "Customer's username: ", 'Order total amount: ', "Order delivery status: ", "Order delivered date: ", "Order feedback: ", "Delivery info: ", "Placeholder: "]
     for i in l:
-        if c == 1:
-            i = datetime.datetime.fromtimestamp(float(i))  
         print(column[c], i)
         c += 1
-    print('\n')
     return 1
 
 # To print out payment details
@@ -871,11 +856,8 @@ def displayPayment(l):
     c = 0
     column = ['Payment ID: ', 'Payment method: ', 'Payment amount: ', 'Confirmation code: ', 'Payment time: ', 'Placeholder: '  ]
     for i in l:
-        if c == 4:
-            i = datetime.datetime.fromtimestamp(float(i))  
         print(column[c], i)
         c += 1
-    print('\n')
     return 1
 
 # To get current time
@@ -895,12 +877,11 @@ def getcolumn(filename, co):
     try:
         with open(filename, 'r') as file:
             for line in file.readlines():
-                if line != '':
-                    cdict.append(line.split(";")[int(co)].rstrip('\n'))    
+                cdict.append(line.split(";")[int(co)])    
         file.close()
         return cdict
     except:
-        print('An error occurred. Please try again, or check your input\n')
+        print('An error occured. Please try again, or check your input')
         return 0
 
 # Row processing function
@@ -910,10 +891,9 @@ def getrow(filename, ro):
         with open(filename, 'r') as file:
             data = file.readlines()
             cdict = data[int(ro)].split(";")
-            cdict[-1] = cdict[-1].rstrip('\n')
         return cdict
     except:
-        print('An error occurred. Please try again, or check your input\n')
+        print('An error occured. Please try again, or check your input')
         return 0
 
 # Write file function
@@ -946,7 +926,6 @@ def updaterow(file, row, data):
             for line in lines:
                 if int(ln) == int(row):
                     filestream.write(';'.join(lst))
-                    filestream.write('\n')
                     ln += 1
                 else:
                     filestream.write(line)
@@ -995,13 +974,13 @@ def dettol(x): return x.rstrip("\:;").strip()
 
 # Logout function
 # Return user to main UI, simple and eazy
-def logout(): print('Goodbye\n')
+def logout(): return mainui()
 
 # Handle unexpected errors function
 # Print contact help message, then force close the app
 def criterr():
-    print('Unexpected error: Invalid argument. Please follow the instructions given, or contact software support.\n')
-    exit()
+    print('Unexpected error: Invalid argument. Please follow the instructions given, or contact software support.')
+    quit()
 
 # Force quit function
 # To force quit python program
@@ -1036,7 +1015,7 @@ def init():
             print('An error occurred. Please try to create "', f, '" manually\n')
             raise e
         except:
-            print('Environment check failed. Please contact support.\n')
+            print('Environment check failed. Please contact support.')
             quit()
     mainui() 
 
