@@ -1,0 +1,68 @@
+# Pseudo Code
+
+# Main UI Initial Page
+START
+	DEFINE FUNCTION mainui()
+	DISPLAY 1. List all items
+	DISPLAY 2. Login to system
+	DISPLAY 3. Exit
+END 
+
+# Admin UI Initial Page
+START 
+	DEFINE FUNCTION adminui()
+	DISPLAY 1. Add new Category
+	DISPLAY 2. Manage Category
+	DISPLAY 3. Add/Modify Item
+	DISPLAY 4. Search customer order
+	DISPLAY 5. Search customer payment history
+	DISPLAY 6. Add/Modify/Delete Delivery Staff
+	DISPLAY 7. Search Delivery Staff
+	DISPLAY 8. Assign order to Delivery Staff
+	DISPLAY 0. Logout
+END
+
+# Delivery Staff Initial Page
+START
+	DEFINE FUNCTION staffui()
+	DISPLAY 1. View/Select Order for Delivery    
+	DISPLAY 2. Update Delivery status 
+	DISPLAY 3. Take feedback on delivery 
+	DISPLAY 0. Logout 
+END
+
+# Customer UI Initial Page 
+START
+	DEFINE FUNCTION custui()
+	DISPLAY 1. View category details 
+	DISPLAY 2. View Item Details 
+	DISPLAY 3. Place order 
+	DISPLAY 4. Make order 
+	DISPLAY 0. Logout 
+END
+
+# Program initialization
+START
+	DEFINE FUNCTION init()
+	DISPLAY Welcome to APU Online Shopping Mall(AOSM)!
+	DEFINE filelist WITH users.txt, products.txt, orders.txt, customer.txt
+	LOOP THROUGH ELEMENT IN fileList AS f:
+		TRY:
+			OPEN f with argument os.O_RDWR
+			CLOSE f
+		EXCEPTION IF ERROR:
+			DISPLAY An error occured. Please try to create [f] manually. 
+	CALL mainui()
+END
+
+
+START
+	FUNCTION NAME gettime
+	DEFINE FILE NAME reow.txt AS tfile
+	OPEN FILE STREAM tfile AS reow
+	WRITE TEXT testline INTO reow FILE STREAM
+	CLOSE FILE STREAM reow
+	READ tfile TIME AND STORE IN readtime
+	REMOVE tfile
+	RETURN readtime VALUE
+END

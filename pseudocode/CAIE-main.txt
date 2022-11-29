@@ -1,0 +1,985 @@
+# Pseudo Code
+
+# Import basic module
+IMPORT os
+
+# Main UI Initial Page
+DEFINE FUNCTION mainui():
+    SET u TO 'guest'
+    OUTPUT('Home Page:')
+    OUTPUT('1. View all items\n')
+    OUTPUT('2. Login to system\n')
+    OUTPUT('3. Register as customer\n')
+    OUTPUT('0. Exit\n')
+    SET opt TO int(READ('Please enter option:'))
+    CALL fnsorter(u, opt, u)
+
+# Admin UI Initial Page
+DEFINE FUNCTION adminui(usr):
+    SET role TO 'admin'
+    OUTPUT('Welcome ', usr, ' to Admin UI:')
+    OUTPUT('1. Add new Category\n')
+    OUTPUT('2. Manage Category\n')
+    OUTPUT('3. Add/Modify Item\n')
+    OUTPUT('4. Display all item details\n')
+    OUTPUT('5. Search customer order\n')
+    OUTPUT('6. Search customer payment history\n')
+    OUTPUT('7. Add/Modify/Delete Delivery Staffs\n')
+    OUTPUT('8. Search Delivery Staff\n')
+    OUTPUT('9. Assign order to Delivery Staff\n')
+    OUTPUT('0. Logout\n')
+    SET opt TO int(READ('Please enter your choice:'))
+    CALL fnsorter(usr, opt, role)
+
+# Delivery Staff Initial Page
+DEFINE FUNCTION staffui(usr):
+    SET role TO 'staff'
+    OUTPUT('Welcome ', usr, ' to Staff Index:')
+    OUTPUT('1. View/Select Order FOR Delivery\n')
+    OUTPUT('2. Update Delivery status\n')
+    OUTPUT('3. Take feedback on delivery\n')
+    OUTPUT('0. Logout\n')
+    SET opt TO int(READ('Please enter your task:'))
+    CALL fnsorter(usr, opt, role)
+
+# Customer UI Initial Page 
+DEFINE FUNCTION custui(usr):
+    SET role TO 'cust'
+    OUTPUT('Welcome ', usr, ' to Customer Home Page:')
+    OUTPUT('1. View category details\n')
+    OUTPUT('2. View all items\n')
+    OUTPUT('3. View items by category\n')
+    OUTPUT('4. Place order\n')
+    OUTPUT('5. Make order\n')
+    OUTPUT('0. Logout\n')
+    SET opt TO int(READ('Please enter the menu index:'))
+    CALL fnsorter(usr, opt, role)
+
+# User role identiying function
+DEFINE FUNCTION tiering(r, n):
+    IF r EQUALS 'admin':
+        CALL adminui(n)
+    IF r EQUALS 'staff':
+        CALL staffui(n)
+    OUTPUT('No tier specified. Returning to main page.\n')
+    CALL mainui()
+
+# Main login logic function 
+DEFINE FUNCTION login(opt):
+    OUTPUT('AOSM Login Checkpoint\n')
+    IF opt EQUALS 1 :
+        SET udb TO 'customers.txt'
+    ELSEIF opt EQUALS 2 :
+        SET udb TO 'users.txt'
+    ELSE:
+        OUTPUT('No role defined. Returning to Main UI')
+        RETURN 0
+    SET uName TO dettol(READ('Please enter your username:\n'))
+    OUTPUT('Checking database... Please Wait...\n')
+    TRY:
+        SET uid TO getcolumn(udb, 0).index(uName)
+        SET udt TO getrow(udb, uid)
+        SET uPwd TO dettol(READ('Please enter your password:\n'))
+    EXCEPT:
+        OUTPUT('Invalid username. Please check your READ AND try again later.\n')
+        RETURN 0
+    IF (uid NOT EQUAL TO '') AND (uPwd NOT EQUAL TO ''):
+        IF uPwd EQUALS udt[1]:
+            TRY: 
+                RETURN CALL tiering(udt[8], uName)
+            EXCEPT:
+                RETURN CALL custui(uName)
+        ELSE:
+            OUTPUT('Invalid username OR password. Please check your READ AND try again later.\nReturning to Main UI\n')
+            RETURN 0
+    ELSE:
+        OUTPUT('Empty READ. Returning to Main UI.\n')
+        RETURN 0
+
+# Login function handler
+DEFINE FUNCTION loginhandler():
+    SET x TO READ('Press 1 FOR customer, press 2 FOR staff:\n')
+    TRY:
+        SET x TO int(x)
+    EXCEPT:
+        OUTPUT('Invalid READ. Please try again')
+        CALL loginhandler()
+    IF login(x) EQUALS 0:
+        CALL mainui()
+
+# Customer Register main logic function
+DEFINE FUNCTION custreg():
+    SET baseStr TO 'Please enter your '
+    OUTPUT('Join now AS our customer to enjoy more benefits!\n')
+    SET regname TO READ('Please enter your desired username:\n')
+    WHILE regname:
+        OUTPUT('Please wait WHILE we check the username availability...\n')
+        TRY:
+            CALL getcolumn('customers.txt', 0).index(regname)
+            OUTPUT('Username already exist! Please proceed to login. Returning to Main UI now.')
+            RETURN 0
+        EXCEPT ValueError:
+            OUTPUT('Username available. Please proceed FOR next step.')        
+        SET pwd TO baseStr + 'preferred password:'
+        SET email TO baseStr + 'email address:'
+        SET fname TO baseStr + 'full name:'
+        SET phone TO baseStr + 'phone number IN international format, eg +60123456789:'
+        SET addr TO baseStr + 'delivery address:'
+        SET gender TO baseStr + 'biological gender (M/F):'
+        SET plh TO '0'
+        SET bStr TO [regname, pwd, email, fname, phone, addr, gender, plh] 
+        SET details TO theMagic(bStr)
+        IF (e ASSIGN FROM writeto('customers.txt', details)) EQUALS 1:
+            OUTPUT('User "', regname, '" has successfully created!\n')
+            CALL custui(regname)
+        ELSE:
+            OUTPUT('User unable to create.', e)
+            OUTPUT("Please check IF special symbols exists OR the database file has been modified. Returning to Main UI.\n")
+            RETURN 0
+    OUTPUT("No READ has been entered. Returning to Main UI\n")
+    RETURN 0
+
+# Customer Register function handler
+DEFINE FUNCTION custreghandler():
+    IF custreg() EQUALS 0:
+        CALL mainui()
+
+# Delivery Man Sub Menu for Add/Manage/Delete delivery man
+DEFINE FUNCTION delmanSubMenu():
+    SET staffname TO READ('Please enter username of the staff/delivery man:\n')
+    OUTPUT('Checking IN staff database...\n')
+    IF staffname NOT EQUAL TO '':
+        TRY:
+            SET uid TO getcolumn('users.txt', 0).index(staffname)
+            OUTPUT('User ', staffname, ' found. Do you want to modify OR delete record?\n')
+            SET c TO int(READ("1. Modify\n2. Delete\n3. Back to Admin UI\n"))
+            IF c EQUALS 1:
+                CALL delmanManage(uid, staffname)
+                RETURN 1
+            ELSEIF c EQUALS 2:
+                CALL delmanByebye(uid, staffname)
+                RETURN 1
+            ELSEIF c EQUALS 3:
+                RETURN 2
+            ELSE:
+                OUTPUT('No READ detected. Returning to Admin UI')
+                RETURN 0
+        EXCEPT:
+            OUTPUT('Username not found! Please make sure you entered the correct username, username are capital sensitive.\n')
+            SET d TO int(READ('Do you want to create a new user OR retry READ username?\n1. Create new user\n2. Retry username\3. Return to Admin UI\n'))
+            IF d EQUALS 1:
+                CALL delmanNew(staffname)
+            ELSEIF d EQUALS 2:
+                CALL delmanSubMenu()
+            ELSEIF d EQUALS 3:
+                RETURN 2
+            ELSE:
+                OUTPUT('No READ detected. Returning to Admin UI')
+                RETURN 0
+    RETURN 2
+
+# Create new delivery man profile
+DEFINE FUNCTION delmanNew(x):
+    OUTPUT('Creating new user WITH username "', x, '".')
+    SET baseStr TO 'Please enter the '
+    SET pwd TO baseStr + 'preferred password:'
+    SET email TO baseStr + 'email address:'
+    SET fname TO baseStr + 'full name:'
+    SET phone TO baseStr + 'phone number IN international format, eg +60123456789:'
+    SET addr TO baseStr + 'delivery address:'
+    SET role TO baseStr + 'role FOR user(admin/staff):'
+    SET plh TO '0'
+    SET bStr TO [x, pwd, fname, phone, addr, email, plh, plh, role] #username;password;fullname;phone number;address;email;placeholder;placeholder;role.
+    SET details TO theMagic(bStr)
+    IF (e ASSIGN FROM CALL writeto('users.txt', details)) EQUALS 1:
+        OUTPUT('User "', x, '"has successfully created!\n')
+        RETURN 1
+    ELSE:
+        OUTPUT('User unable to create.', e)
+        OUTPUT("\nPlease check IF special symbols exists OR the database file has been modified. Returning to Admin UI.\n")
+        RETURN 0
+
+# Edit exist delivery man's profile
+DEFINE FUNCTION delmanManage(x, y):
+    OUTPUT('Editing data of "',y,'".')
+    SET dt TO getrow('users.txt', x)
+    SET u TO READ(str('Current username: ' + dt[0] + ', Enter new username:')) OR dt[0]
+    SET p TO READ(str('Current password: ' + dt[1] + ', Enter new password:')) OR dt[1]
+    SET f TO READ(str('Current name: ' + dt[2] + ', Enter new name:')) OR dt[2]
+    SET n TO READ(str('Current phone number: ' + dt[3] + ', Enter new phone number:')) OR dt[3]
+    SET a TO READ(str('Current address: ' + dt[4] + ', Enter new address:')) OR dt[4]
+    SET e TO READ(str('Current email: ' + dt[5] + ', Enter new email:')) OR dt[5] 
+    SET r TO READ(str('Current role: ' + dt[8] + ' Enter new role(admin/staff):')) OR dt[8].strip('\n')
+    SET lst TO [u,p,f,n,a,e,'0','0',r]
+    SET confirm TO READ(str('Are you sure you want to update entry of "' + y + '"?(Y/n)\n'))
+    IF confirm EQUALS 'Y':
+        TRY:
+            CALL updaterow('users.txt', x, lst)
+            OUTPUT('User "', y,'" has been successfully modified WITH new details.')
+            RETURN 1
+        EXCEPT:
+            OUTPUT("An error occurred, please try again later, OR check your permission settings.")
+            RETURN 0
+    ELSE:
+        OUTPUT('Action aborted due to incorrect confirmation. Returning to Admin UI.')
+        RETURN 0
+
+# Delete existing delivery man's profile
+DEFINE FUNCTION delmanByebye(x, y):
+    SET confirm TO READ(str('Are you sure you want to delete "' + y + '"?(Y/n)\n'))
+    IF confirm EQUALS 'Y':
+        TRY:
+            WITH open('users.txt', 'r') AS file:
+                SET lines TO file.readlines()
+                SET ln TO 0
+                WITH open('users.txt', 'w') AS f:
+                    FOR line IN lines:
+                        IF ln NOT EQUAL TO x:
+                            f.write(line)
+                        ln INCREMENT 1
+            OUTPUT('User "', y,'" has been successfully deleted.')
+            RETURN 1
+        EXCEPT:
+            OUTPUT("An error occurred, please try again later, OR check your permission settings.")
+            RETURN 0
+    ELSE: 
+        OUTPUT('Action aborted due to incorrect confirmation. Returning to Admin UI.')
+        RETURN 0
+
+# Search for delivery man using full username
+DEFINE FUNCTION delmanSearch():
+    SET query TO READ('Please enter the full username of delivery staff to start search:')
+    WHILE len(query)>=4:
+        TRY:
+            SET uid TO CALL getcolumn('users.txt', 0).index(query)
+            SET info TO CALL getrow('users.txt', uid)
+            OUTPUT('Details of user:', query)
+            OUTPUT('Full Name:', info[2])
+            OUTPUT('Phone Number:', info[3])
+            OUTPUT('Address:', info[4])
+            OUTPUT('Email address:', info[5])
+            OUTPUT("User's: role:", info[8])
+            OUTPUT('Search complete. Returning to Admin UI.')
+            RETURN 1
+        EXCEPT ValueError:
+            OUTPUT('Username not found! Please make sure you entered the correct username, username are capital sensitive.\n')
+            RETURN 0
+    OUTPUT('Queried username is too short! Please READ query keyword WITH more than 4 characters. Returning to Admin UI.')
+    RETURN 0
+
+# Assign delivery man to order
+DEFINE FUNCTION delmanAssign():
+    SET odb TO 'orders.txt'
+    SET udb TO 'users.txt'
+    OUTPUT('Assigning staff to order(s)...')
+    SET order TO int(READ('Please enter the Order ID to be assigned:'))
+    SET delman TO READ(str('Please enter the username of staff to be assigned to the order ' + str(order) + ':'))
+    SET odt TO CALL getcolumn(odb, 0)
+    SET udt TO CALL getcolumn(udb, 0)
+    TRY:
+        SET oid TO odt.index(str(order))
+        IF (oid NOT EQUAL TO 0) AND (udt.index(delman) LARGER EQUAL 0):
+            SET confirm TO READ(str('Confirm assigning ' + str(order) + ' to ' + delman +'?(Y/n):\n'))
+            IF confirm EQUALS 'Y':
+                SET dt TO getrow(odb, oid)
+                SET dt[9] TO delman
+                CALL updaterow(odb, oid, dt)
+                OUTPUT('Update successful. Returning to Admin UI.\n')
+                RETURN 1
+            ELSE:
+                OUTPUT('No valid confirmation. Returning to Admin UI\n')
+                RETURN 0
+    EXCEPT:
+        OUTPUT('Make sure valid order ID AND staff username is entered.\nReturning to Admin UI\n')
+        RETURN 0
+
+# Add new category
+DEFINE FUNCTION addCat():
+    SET cfile TO 'category.txt'
+    SET newCat TO READ('Please enter new category name:')
+    TRY:
+        SET catID TO [cat.lower() FOR cat IN getcolumn(cfile, 1)].index(newCat.lower())
+        OUTPUT('Category "', newCat, '" already exist WITH Category ID "', catID, '", please use the existing category.\n Returning to Admin UI.\n')
+        RETURN 0
+    EXCEPT ValueError:
+        OUTPUT('Category name available, please proceed to enter details FOR new category.')
+    SET catDes TO READ('Enter description FOR new category (Not more than 50 words):')
+    SET newcatID TO int(getcolumn(cfile, 0)[-1]) + 1
+    SET plh TO 0
+    SET catList TO [newcatID, newCat, catDes, plh]
+    IF (e ASSIGN FROM CALL writeto(cfile, catList)) EQUALS 1:
+        OUTPUT('Category "', newCat, '" has successfully created!\nCategory ID:', newcatID)
+        RETURN 1
+    ELSE:
+        OUTPUT('Category unable to create.', e)
+        OUTPUT("Please check IF special symbols exists OR the database file has been modified. Returning to Main UI.")
+        RETURN 0
+
+# Modify existing category
+DEFINE FUNCTION modCat():
+    SET cfile TO 'category.txt'
+    SET catname TO READ('Please enter category name:')
+    OUTPUT('Please wait WHILE system is retrieving data...')
+    TRY:
+        SET cid TO getcolumn(cfile, 1).index(catname)
+        SET dt TO getrow(cfile, cid)
+        SET n TO READ(str('Current category name: ' + dt[1] + ', Enter new category name:')) OR dt[1]
+        SET d TO READ(str('Current category description: ' + dt[2] + ', Enter new category description:')) OR dt[2]
+        SET lst TO [cid,n,d,0]
+        SET confirm TO READ(str('Are you sure you want to update entry of "' + catname + '"?(Y/n):\n'))
+        IF confirm EQUALS 'Y':
+            TRY:
+                CALL updaterow(cfile, cid, lst)
+                OUTPUT('Category "', n,'" has been successfully modified WITH new data.')
+                RETURN 1
+            EXCEPT:
+                OUTPUT("An error occurred, please try again later, OR check your permission settings.")
+                RETURN 0
+        ELSE:
+            OUTPUT('Action aborted due to incorrect confirmation. Returning to Admin UI.')
+            RETURN 2
+    EXCEPT ValueError:
+        OUTPUT('Category not found! Make sure you have entered the exact same name of the category.\nReturning to Admin UI.')
+        RETURN 0
+
+# Add new item
+DEFINE FUNCTION addItem():
+    SET pfile TO 'products.txt'
+    SET cfile TO 'category.txt'
+    SET newItem TO READ('Please enter new item name:')
+    TRY:
+        SET productID TO [i.lower() FOR i IN getcolumn(pfile, 1)].index(newItem.lower())
+        OUTPUT('Product "', newItem, '" already exist WITH Category ID "', productID, '", please choose other name OR use the existing entry.\n Returning to Admin UI.')
+        RETURN 0
+    EXCEPT ValueError:
+        OUTPUT('Product name available. Please proceed to choose the relevant category from list below.')
+    SET catName TO CALL getcolumn(cfile, 1)
+    SET catID TO CALL getcolumn(cfile, 0)
+    SET i TO 0
+    FOR namae IN catName:
+        OUTPUT(int(catID[i]), '.', namae)
+        i INCREMENT 1
+    SET selCat TO int(READ('Please select the category of the new item:'))
+    SET itemDes TO READ('Enter description FOR new item (Not more than 100 words):')
+    SET itemStk TO int(READ('Enter available stock FOR item:'))
+    SET itemRM TO float(READ('Enter retail price FOR item:'))
+    SET newitemID TO int(getcolumn(pfile, 0)[-1]) + 1
+    SET itemList TO [newitemID, newItem, itemDes, itemStk, 0, itemRM, selCat]
+    IF (e ASSIGN FROM writeto(pfile, itemList)) EQUALS 1:
+        OUTPUT('New product "', newItem, '"has successfully created!\nProduct ID:', newitemID)
+        RETURN 1
+    ELSE:
+        OUTPUT('Product unable to create.', e)
+        OUTPUT("Please check IF special symbols exists OR the database file has been modified. Returning to Admin UI.")
+        RETURN 0
+
+# Modify existing item
+DEFINE FUNCTION modItem():
+    SET pfile TO 'products.txt'
+    SET itemname TO READ('Please enter item name:')
+    OUTPUT('Please wait WHILE system is retrieving data...')
+    TRY:
+        SET iid TO str(getcolumn(pfile, 1).index(itemname))
+        SET dt TO getrow(pfile, iid)
+        SET n TO READ(str('Current product name: ' + dt[1] + ', Enter new product name:')) OR dt[1]
+        SET d TO READ(str('Current product description: ' + dt[2] + ', Enter new product description:')) OR dt[2]
+        SET s TO READ(str('Current product stock: ' + dt[3] + ', Enter new stock quantity:')) OR dt[3]
+        SET p TO READ(str('Current product retail price: ' + dt[5] + ', Enter new retail price:')) OR dt[5]
+        SET c TO READ(str('Current product category: ' + dt[6] + ', Enter new product category:')) OR dt[6].strip('\n')
+        SET lst TO [iid,n,d,s,dt[4],p,c]
+        SET confirm TO READ(str('Are you sure you want to update entry of "' + itemname + '"?(Y/n)\n'))
+        IF confirm EQUALS 'Y':
+            TRY:
+                CALL updaterow(pfile, iid, lst)
+                OUTPUT('Product "', n,'" has been successfully modified WITH new data.')
+                RETURN 1
+            EXCEPT:
+                OUTPUT("An error occurred, please try again later, OR check your permission settings.")
+                RETURN 0
+        ELSE:
+            OUTPUT('Action aborted due to incorrect confirmation. Returning to Admin UI.')
+            RETURN 2
+    EXCEPT:
+        OUTPUT('Item not found! Make sure you have entered the exact same name of the product.\nReturning to Admin UI.')
+        RETURN 0
+
+# List all available category
+DEFINE FUNCTION listCat():
+    SET cfile TO 'category.txt'
+    OUTPUT('Listing all the available categories:')
+    TRY:
+        SET clist TO getcolumn(cfile, 0)
+        FOR cid IN clist:
+            SET dt TO CALL getrow(cfile, (int(cid)-1))
+            OUTPUT('Category ID: ', cid)
+            OUTPUT('Category name: ', dt[1])
+            OUTPUT('Category description: ', dt[2])
+        OUTPUT('Successfully retrieved all data FOR ', cfile, '.\n')
+        RETURN 1    
+    EXCEPT:
+        OUTPUT("An error occurred, please try again later, OR check the files integrity.")
+        RETURN 0
+
+# List items by relevant category
+DEFINE FUNCTION listItembyCat():
+    SET pfile TO 'products.txt'
+    TRY:
+        CALL listCat()
+    EXCEPT:
+        RETURN 0
+    SET catChoice TO READ('Please enter the choice of category using its Category ID:')
+    SET tmplist TO CALL getcolumn(pfile,6)
+    SET i TO 0
+    SET iList TO []
+    FOR item IN tmplist:
+        IF item EQUALS catChoice:
+            iList.append(i)
+        i INCREMENT 1   
+    TRY: 
+        OUTPUT('Products under category ', catChoice)
+        FOR index IN iList:
+            SET dt TO getrow(pfile, index)
+            OUTPUT('Product ID: ', dt[0]) 
+            OUTPUT('Product name: ', dt[1])
+            OUTPUT('Product description: ', dt[2])
+            OUTPUT('Product stock quantity: ', dt[3])
+            OUTPUT('Product sold quantity: ', dt[4])
+            OUTPUT('Product retail price: ', dt[5])
+        OUTPUT('End of database. Returning to Admin UI')
+        RETURN 1
+    EXCEPT:
+        OUTPUT('An error occurred. Please check file permission OR restart the program. Returning to Admin UI')
+        RETURN 0
+
+# List all available item
+DEFINE FUNCTION listallItem():
+    SET pfile TO 'products.txt'
+    OUTPUT('Listing all the available products:')
+    TRY:
+        SET plist TO CALL getcolumn(pfile, 0)
+        FOR pid IN plist:
+            SET dt TO CALL getrow(pfile, (int(pid)-1))
+            OUTPUT('Product ID: ', dt[0]) 
+            OUTPUT('Product name: ', dt[1])
+            OUTPUT('Product description: ', dt[2])
+            OUTPUT('Product stock quantity: ', dt[3])
+            OUTPUT('Product sold quantity: ', dt[4])
+            OUTPUT('Product retail price: ', dt[5])
+        OUTPUT('Successfully retrieved all data for', pfile, '.\n')
+        RETURN 1    
+    EXCEPT:
+        OUTPUT("An error occurred, please try again later, OR check the files integrity.")
+        RETURN 0
+
+# Item Sub menu for add/modify item
+DEFINE FUNCTION itemSubMenu(u):
+    SET opt TO int(READ('Press 1 to add new item, press 2 to modify item:'))
+    IF opt EQUALS 1:
+        CALL addItem()
+        CALL adminui(u)
+    ELSEIF opt EQUALS 2:
+        CALL modItem()
+        CALL adminui(u)
+    ELSE:
+        OUTPUT('An case error occurred. Please try again later. Returning to Admin UI')
+        CALL adminui(u)
+    CALL adminui(u)
+
+# Main logic for select item before add into cart
+DEFINE FUNCTION placeOrder(u, items TO [], trm TO 0):
+    CALL listallItem()
+    SET pdb TO 'products.txt'
+    SET sel TO READ('Select your item using product ID:')
+    TRY:
+        SET pdt TO CALL getrow(pdb, (int(sel) -1) )
+        IF pdt:
+            SET qtt TO READ('Please enter order quantity FOR this product:')
+            IF int(qtt) SMALLER EQUAL int(pdt[3]):
+                SET rm TO round(float(pdt[5]) * int(qtt), 2)
+                OUTPUT('Item total will be RM', rm)
+                CALL addtoCart(u, sel, qtt, rm, items, trm)
+                RETURN 1
+            ELSE:
+                OUTPUT('Quantity cannot be more than available stock! Return to customer page.')
+                RETURN 0
+    EXCEPT:
+        OUTPUT('An error occurred. Please make you have entered correct READ. Returning to Customer page.')
+        RETURN 0
+
+# Add to cart helper for checkout
+DEFINE FUNCTION addtoCart(usr, pid, qtt, rm, items, trm, opt TO 0):
+    SET odb TO 'orders.txt'
+    SET tlst TO [pid, qtt]
+    TRY:
+        SET opt TO int(READ('Do you want to checkout now OR continue shopping?\n1. Continue\n2. Checkout\n3. Discard cart\n')) IF opt EQUALS 0 else opt
+        IF opt EQUALS 1:
+            items.append(tlst)
+            SET ttl TO int(trm) + int(rm)
+            CALL placeOrder(usr, items, ttl)
+        ELSEIF opt EQUALS 2:
+            SET oid TO int(getcolumn(odb, 0)[-1]) + 1
+            SET odt TO CALL gettime()
+            items.append(tlst)
+            SET tpp TO float(rm) + float(trm)
+            SET des TO '00'
+            SET cid TO ded TO rat TO deu TO plh TO '0'
+            SET lst TO [oid, odt, items, cid, usr, tpp, des, ded, rat, deu, plh]   
+            CALL writeto(odb, lst)
+            OUTPUT('Order created. Your order number is:', oid)
+            RETURN 1
+        ELSEIF opt EQUALS 3:
+            SET confirm TO READ('Are you sure to discard cart? Once done no revert can be done(Y/n)):')
+            IF confirm EQUALS "Y":
+                OUTPUT('Discarding cart. Will RETURN to customer home page')
+                RETURN 2
+            ELSE:
+                OUTPUT('Invalid confirmation, will RETURN back to order page without new item added.')
+                CALL placeOrder(usr, items, trm)
+        ELSE:
+            OUTPUT('No valid options. Returning to order page WITH existing cart items.')
+            CALL placeOrder(usr, items, trm)
+    EXCEPT:
+        OUTPUT('An error occurred, Please try again later. Saving current cart AS unpaid order.')
+        CALL addtoCart(usr, 0, 0, 0, items, trm, 2)
+
+# Get order from order file and add new entry in payment file
+DEFINE FUNCTION makePayment(u):
+    SET pdb TO 'payments.txt'
+    SET odb TO 'orders.txt'
+    SET tlist TO []
+    OUTPUT('Searching FOR unpaid order FOR user ',u ,'...')
+    TRY:
+        SET dt TO CALL getcolumn(odb, 3)
+        SET dt1 TO CALL getcolumn(odb, 4)
+        SET c TO 0
+        FOR i IN dt:
+            IF (i EQUALS '0') & (dt1[c] EQUALS u):
+                tlist.append(c)
+                c INCREMENT 1
+            ELSE:
+                c INCREMENT 1
+                continue
+        FOR t IN tlist:
+            CALL displayOrder(getrow(odb, t))
+        SET opt TO READ('Please enter orderID to select order AND pay:')
+        IF opt NOT EQUAL TO '':
+            SET dt2 TO CALL getrow(odb, int(opt))
+            SET tpc TO READ('Please enter your TPCard number:')
+            SET confirm TO READ(str('Amount '+ str(dt2[5])+ ' will be charged from card '+ tpc + '.\nPlease confirm (Y/n):'))
+            IF (len(tpc) EQUALS 8) & (confirm EQUALS 'Y'):
+                SET pid TO int(getcolumn(pdb, 0)[-1]) + 1
+                SET pmd TO 'tpcard:' + tpc 
+                SET pmt TO dt2[5]
+                SET cc TO CALL hash(tpc+pmt)
+                SET pdt TO CALL gettime()
+                SET plh TO 0
+                SET lst TO [pid,pmd,pmt,cc,pdt,plh]
+                CALL writeto(pdb, lst)
+                SET odt TO getrow(odb, int(opt))
+                SET odt[3] TO str(pid)
+                CALL updaterow(odb, int(opt), odt)
+                OUTPUT('Payment successful! Returning to home page.')
+                RETURN 1
+    EXCEPT:
+        OUTPUT('Error occurred. Please try again later.')
+        RETURN 0
+
+# List all order assigned to specific delivery man
+DEFINE FUNCTION listallDelOrder(u):
+    SET odb TO 'orders.txt'
+    SET lst TO []
+    SET c TO 0
+    OUTPUT('Fetching list of delivery order FOR ', u, ':\n')
+    TRY:
+        SET ols TO CALL getcolumn(odb, 9)
+        FOR i IN ols:
+            IF i EQUALS u:
+                lst.append(c)
+                c INCREMENT 1
+            ELSE:
+                c INCREMENT 1
+        IF len(lst) LARGER THAN 0:
+            FOR o IN lst:
+                SET dt TO CALL getrow(odb, o)
+                OUTPUT('Order ID: ', dt[0])
+                OUTPUT('Order delivery status: ', dt[6])
+                OUTPUT('Order delivered date: ', dt[7])
+                OUTPUT('Order feedback: ', dt[8])
+                OUTPUT('Staff IN charge: ', dt[9])
+                OUTPUT('\n')
+        ELSE:
+            OUTPUT('No order found. Returning to Staff UI.')
+            RETURN 2
+        OUTPUT('Delivery order query completed.\n')
+        RETURN 1
+    EXCEPT:
+        OUTPUT('An error occurred, please try again later. Returning to Staff UI.')
+        RETURN 0
+
+# Update order delivery statuses
+DEFINE FUNCTION orderUpdate(u):
+    SET odb TO 'orders.txt'
+    CALL listallDelOrder(u)
+    SET query TO READ('Please READ the order ID to update:')
+    IF query NOT EQUAL TO '':
+        TRY:
+            SET dt TO CALL getrow(odb, query)
+        EXCEPT:
+            OUTPUT('Order not found, please check your READ. Returning to Staff UI.')
+            RETURN 0
+    ELSE:
+        OUTPUT('No READ detected. Returning to Staff UI')
+        RETURN 2
+    IF (dt[7] NOT EQUAL TO '0') AND (str(dt[6] EQUALS '12')):
+        OUTPUT('Order already completed, no further update required. Returning to Staff UI')
+        RETURN 2
+    SET action TO int(READ('Please enter the current status FOR the order:\n1. pending\n2. delivering\n3. completed\n'))
+    IF action EQUALS 1:
+        SET dt[6] TO '10'
+    ELSEIF action EQUALS 2:
+        SET dt[6] TO '11'
+    ELSEIF action EQUALS 3:
+        SET dt[6] TO '12'
+        SET dt[7] TO gettime()
+    TRY:
+        CALL updaterow(odb, query, dt)
+        OUTPUT('Order ', query, 'successfully updated. Returning to Staff UI')
+        RETURN 1
+    EXCEPT:
+        OUTPUT('An error occurred, please try again later. Returning to Staff UI.')
+        RETURN 0    
+
+# Update order feedback
+DEFINE FUNCTION orderFeedback(u):
+    CALL listallDelOrder(u)
+    SET odb TO 'orders.txt'
+    SET oid TO int(READ('Please READ the order ID to give feedback:'))
+    TRY:
+        SET dt TO CALL getrow(odb, oid)
+        IF int(dt[8]) EQUALS 0:
+            OUTPUT('Please READ the rating number:\n')
+            SET fb TO int(READ('1. Very bad\n2. Bad\n3. Neutral\n4. Good\n5. Very good\n'))
+            IF 0 SMALLER THAN fb SMALLER THAN 6 :
+                SET dt[8] TO fb
+                RETURN CALL updaterow(odb, oid, dt)
+            ELSE:
+                OUTPUT('Invalid READ. Make sure its within the given range. Returning to Staff UI')
+                RETURN 0
+        ELSE:
+            OUTPUT('Rating has been given to this order. No further amendment allowed.\nReturning to Staff UI.\n')
+            RETURN 0
+    EXCEPT:
+        OUTPUT('Invalid Order ID. Please check the READ AND try again. Returning to Staff UI.')
+        RETURN 0
+
+# Search for customer order and display
+DEFINE FUNCTION custOrderQuery():
+    SET odb TO 'orders.txt'
+    SET query TO int(READ('Please enter customer order ID to start search:'))
+    IF query:
+        TRY:
+            CALL displayOrder(getrow(odb, query))
+            OUTPUT('Query completed. Returning to Admin UI.')
+            RETURN 1
+        EXCEPT ValueError:
+            OUTPUT('Order not found! Please make sure you entered the correct order ID WITH numbers only.\n')
+            RETURN 0
+    OUTPUT('No query detected. Returning to Admin UI.')
+    RETURN 0
+
+# Search for customer payment and display
+DEFINE FUNCTION custPaymentQuery():
+    SET pdb TO 'payments.txt'
+    SET query TO int(READ('Please enter payment ID to start search:'))
+    TRY:
+        IF query LARGER EQUAL 0:
+            CALL displayPayment(getrow(pdb, query))
+            OUTPUT('Query completed. Returning to Admin UI.')
+            RETURN 1
+        ELSE:
+            OUTPUT('Payment record not found! Please make sure you entered the correct payment ID WITH numbers only.\n')
+            RETURN 0
+    EXCEPT ValueError:
+        OUTPUT('No query detected. Returning to Admin UI.\n')
+        RETURN 0
+
+# List out all customers' order
+DEFINE FUNCTION listcustOrder():
+    SET odb TO 'orders.txt'
+    OUTPUT('Listing out all customer orders...')
+    TRY:
+        SET olist TO CALL getcolumn(odb, 0)
+        FOR oid IN olist:
+            displayOrder(getrow(odb, oid))
+        OUTPUT('Listing completed. Returning to Main UI.')
+        RETURN 1
+    EXCEPT:
+        OUTPUT('An error occurred. Returning to Admin UI.')        
+        RETURN 0
+
+# List out all customers' payment
+DEFINE FUNCTION listcustPayment():
+    SET pdb TO 'payments.txt'
+    OUTPUT('Listing out all payment records...')
+    TRY:
+        SET plist TO CALL getcolumn(pdb, 0)
+        FOR pid IN plist:
+            displayPayment(getrow(pdb, pid))
+        OUTPUT('Listing completed. Returning to Main UI.')
+        RETURN 1
+    EXCEPT:
+        OUTPUT('An error occurred. Returning to Admin UI.')        
+        RETURN 0
+
+# Main logic for redirecting program users to destinated functions
+DEFINE FUNCTION fnsorter(u, o, r):
+    SET r TO r.lower()
+    IF r.find('admin') NOT EQUAL TO -1:
+        IF o EQUALS 1:
+            CALL addCat()
+            RETURN CALL adminui(u)
+        ELSEIF o EQUALS 2:
+            CALL modCat()
+            RETURN CALL adminui(u)
+        ELSEIF o EQUALS 3:
+            CALL itemSubMenu(u)
+        ELSEIF o EQUALS 4:
+            CALL listallItem()
+            RETURN CALL adminui(u)
+        ELSEIF o EQUALS 5:
+            CALL custOrderQuery()
+            RETURN CALL adminui(u)
+        ELSEIF o EQUALS 6:
+            CALL custPaymentQuery()
+            RETURN CALL adminui(u)
+        ELSEIF o EQUALS 7:
+            CALL delmanSubMenu()
+            RETURN CALL adminui(u)
+        ELSEIF o EQUALS 8:
+            CALL delmanSearch()
+            RETURN CALL adminui(u)
+        ELSEIF o EQUALS 9:
+            CALL delmanAssign()
+            RETURN CALL adminui(u)
+        ELSEIF o EQUALS 0:
+            CALL logout()
+        ELSE:
+            CALL criterr()  
+    IF r.find('staff') NOT EQUAL TO -1:
+        IF o EQUALS 1:
+            CALL listallDelOrder(u)
+            RETURN CALL staffui(u)
+        ELSEIF o EQUALS 2:
+            CALL orderUpdate(u)
+            RETURN CALL staffui(u)
+        ELSEIF o EQUALS 3:
+            CALL orderFeedback(u)
+            RETURN CALL staffui(u)
+        ELSEIF o EQUALS 0:
+            CALL logout()
+        ELSE:
+            CALL criterr() 
+    IF r.find('cust') NOT EQUAL TO -1:
+        IF o EQUALS 1:
+            CALL listCat()
+            RETURN CALL custui(u)
+        ELSEIF o EQUALS 2:
+            CALL listallItem()
+            RETURN CALL custui(u)
+        ELSEIF o EQUALS 3:
+            CALL listItembyCat()
+            RETURN CALL custui(u)
+        ELSEIF o EQUALS 4:
+            CALL placeOrder(u)
+            RETURN CALL custui(u)
+        ELSEIF o EQUALS 5:
+            CALL makePayment(u)
+            RETURN CALL custui(u)
+        ELSEIF o EQUALS 0:
+            CALL logout()
+        ELSE:
+            CALL criterr()
+    IF r.find('guest') NOT EQUAL TO -1:
+        IF o EQUALS 1:
+            CALL listallItem()
+            RETURN CALL mainui()
+        ELSEIF o EQUALS 2:
+            CALL loginhandler()
+        ELSEIF o EQUALS 3:
+            CALL custreghandler()
+        ELSEIF o EQUALS 0:
+            OUTPUT('Have a nice day. Goodbye.')
+            CALL forcequit()
+        ELSE:
+            CALL criterr()   
+    OUTPUT('Exception occurred. Exiting program now')
+    CALL forcequit()
+
+# Helper function to display customer order
+DEFINE FUNCTION displayOrder(l):
+    SET c TO 0
+    SET column TO ['Order ID: ', 'Order created time: ', 'Products: ','Associated payment ID: ', "Customer's username: ", 'Order total amount: ', "Order delivery status: ", "Order delivered date: ", "Order feedback: ", "Delivery info: ", "Placeholder: "]
+    FOR i IN l:
+        OUTPUT(column[c], i)
+        c INCREMENT 1
+    RETURN 1
+
+# Helper function to display customer payment
+DEFINE FUNCTION displayPayment(l):
+    SET c TO 0
+    SET column TO ['Payment ID: ', 'Payment method: ', 'Payment amount: ', 'Confirmation code: ', 'Payment time: ', 'Placeholder: '  ]
+    FOR i IN l:
+        OUTPUT(column[c], i)
+        c INCREMENT 1
+    RETURN 1
+
+# Custom function to get unix time by creating file and read time created
+DEFINE FUNCTION gettime(): 
+    SET tfile TO 're.ow'
+    SET #reow TO os.open(tfile, os.O_RDWR)
+    SET reow TO open(tfile, 'w+')
+    #os.write(reow, "testline")
+    reow.close()
+    SET readtime TO os.path.getmtime(tfile)
+    os.remove(tfile)
+    RETURN readtime
+
+# Function to get entire column from specified file
+DEFINE FUNCTION getcolumn(filename, co):
+    SET cdict TO []
+    TRY:
+        WITH open(filename, 'r') AS file:
+            FOR line IN file.readlines():
+                cdict.append(line.split(";")[int(co)])    
+        file.close()
+        RETURN cdict
+    EXCEPT:
+        OUTPUT('An error occured. Please try again, OR check your READ')
+        RETURN 0
+
+# Function to get only one row from specified file
+DEFINE FUNCTION getrow(filename, ro):
+    TRY:
+        WITH open(filename, 'r') AS file:
+            SET data TO file.readlines()
+            SET cdict TO data[int(ro)].split(";")
+        RETURN cdict
+    EXCEPT:
+        OUTPUT('An error occured. Please try again, OR check your READ')
+        RETURN 0
+
+# Function to write data at the end of file
+DEFINE FUNCTION writeto(f, dt):
+    SET olist TO []
+    TRY:
+        FOR i IN dt:
+            olist.append(str(i))
+        WITH open(f, 'a+') AS file:
+            file.write(";".join(olist))
+            file.write('\n')
+        RETURN 1
+    EXCEPT BaseException AS e:
+        OUTPUT('An error occurred:', e)
+        RETURN e
+
+# Function to update specific row in the file
+DEFINE FUNCTION updaterow(file, row, data):
+    SET lst TO []
+    TRY:
+        FOR i IN data:
+            lst.append(str(i))
+        WITH open(file, 'r+') AS filestream:
+            SET lines TO filestream.readlines()
+            SET ln TO 0
+            filestream.seek(0)
+            FOR line IN lines:
+                IF int(ln) EQUALS int(row):
+                    filestream.write(';'.join(lst))
+                    ln INCREMENT 1
+                ELSE:
+                    filestream.write(line)
+                    ln INCREMENT 1
+        RETURN 1
+    EXCEPT BaseException AS e:
+        OUTPUT('An error occurred: ', e)
+        RETURN 0
+
+# Function to iterate through lists and get input when required
+DEFINE FUNCTION theMagic(bstring):
+    SET c TO 0
+    SET lst TO []
+    FOR item IN bstring:
+        IF item.find(':') NOT EQUAL TO -1:
+            IF item.find('full') NOT EQUAL TO -1:
+                SET titem TO READ(item)
+                lst.append(titem) IF datavalidate(titem, 1) NOT EQUAL TO 0 else lst.append(READ('Please enter valid FULL NAME:'))
+                c INCREMENT 1
+                continue
+            IF item.find('email') NOT EQUAL TO -1:
+                SET titem TO READ(item)
+                lst.append(titem) IF datavalidate(titem, 2) NOT EQUAL TO 0 else lst.append(READ('Please enter valid EMAIL:'))
+                c INCREMENT 1
+                continue
+            IF item.find('phone') NOT EQUAL TO -1:
+                SET titem TO READ(item)
+                lst.append(titem) IF datavalidate(titem, 3) NOT EQUAL TO 0 else lst.append(READ('Please enter valid PHONE NUMBER:'))
+                c INCREMENT 1
+                continue
+            IF item.find('address') NOT EQUAL TO -1:
+                SET titem TO READ(item)
+                lst.append(titem) IF datavalidate(titem, 4) NOT EQUAL TO 0 else lst.append(READ('Please enter valid ADDRESS:'))
+                c INCREMENT 1
+                continue
+            lst.append(READ(item))
+            c INCREMENT 1
+        ELSE:
+            lst.append(bstring[c])
+            c INCREMENT 1
+    RETURN lst
+
+# Sanitizing users input to prevent bug
+DEFINE FUNCTION dettol(x): RETURN x.rstrip("\:;").strip()
+
+# Remove username from argument to logout
+DEFINE FUNCTION logout(): RETURN CALL mainui()
+
+# To reduce repeated code in fnsorter, quit when error is hitted
+DEFINE FUNCTION criterr():
+    OUTPUT('Unexpected error: Invalid argument. Please follow the instructions given, OR contact software support.')
+    CALL quit()
+
+# Terminates the entire program
+DEFINE FUNCTION forcequit():
+    CALL os._exit(0)
+
+# Data validation function for name, email, phone, address
+DEFINE FUNCTION datavalidate(dt, param):
+    IF param EQUALS 1:
+        RETURN dt IF list(filter(lambda c: c.isupper(), dt)) NOT EQUAL TO [] else  0
+    ELSEIF param EQUALS 2:
+        RETURN dt IF (dt.find('.') NOT EQUAL TO -1) AND (dt.find('@') NOT EQUAL TO -1) else 0
+    ELSEIF param EQUALS 3:
+        RETURN int(''.join(c FOR c IN dt IF c.isdigit())) IF dt.find('+') NOT EQUAL TO -1 else 0
+    ELSEIF param EQUALS 4:
+        RETURN dt IF dt.find(',') NOT EQUAL TO -1 else 0
+    ELSE:
+        RETURN dt
+
+# Initialization of the program
+DEFINE FUNCTION init():
+    OUTPUT('Welcome to APU Online Shopping Mall(AOSM)!\n\n')
+    SET fileList TO ['users.txt', 'orders.txt', 'products.txt', 'customers.txt', 'category.txt', 'payments.txt']
+    FOR f IN fileList:
+        TRY: 
+            SET fs TO os.open(f, os.O_RDWR)
+            os.close(fs)
+        EXCEPT OSError AS e:
+            OUTPUT('An error occurred. Please try to create "', f, '" manually\n')
+            RAISE EXCEPTION e
+        EXCEPT:
+            OUTPUT('Environment check failed. Please contact support.')
+            quit()
+    CALL mainui() 
+
+# Start executing this program 
+CALL init()

@@ -1,0 +1,4 @@
+guest;0000;guest@test.com;Guest Customer;+60129876543;Jalan Tembikai, Solok Buah-buahan, Kuala Lumpur;F;0
+Miya;Nya;miya@nya.com; Miya Koi ; +601169226933;100 Red River, Blue Hill, Rainbow City ;F;0
+Ilya;Ilya00;Ilya@00.com;Ilya Ayil;+60100000000;15th Avenue, Hogmeades Street, Hog;M;0
+Emel;Emel;emel@emel.emel;Emel Leme;+6060606060;Leme, Memelee, Meleleemele;M;0

@@ -1,0 +1,3 @@
+tp067553;1234;Miyoko Pang Zi Xuan;01111888077;Jalan SS 21/60,Uptown Damansara,Kuala Lumpur;tp067553@mail.apu.edu.my;0;0;admin
+tp060486;0000;Tai Eason;0198765432;Lorong Gangsa,Jelutong,Penang;tp060486@mail.apu.edu.my;0;0;staff
+tp060102;8888;Test Admin;+60123456789;Banana Road, Fruit Garden;a@b.c;0;0;staff

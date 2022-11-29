@@ -1,0 +1,859 @@
+mainui() call the method print Home-SP-Page: .
+call the method print 1.-SP-View-SP-all-SP-items-NL- .
+call the method print 2.-SP-Login-SP-to-SP-system-NL- .
+call the method print 3.-SP-Register-SP-as-SP-customer-NL- .
+call the method print 0.-SP-Exit-NL- .
+print Please-SP-enter-SP-option: input , convert the result to an integer , substitute it for opt .
+call the method fnsorter u opt u .
+define the method adminui usr .
+role is a string ` admin `
+call the method print Welcome-SP- usr -SP-to-SP-Admin-SP-UI: .
+call the method print 1.-SP-Add-SP-new-SP-Category-NL- .
+call the method print 2.-SP-Manage-SP-Category-NL- .
+call the method print 3.-SP-Add/Modify-SP-Item-NL- .
+call the method print 4.-SP-Display-SP-all-SP-item-SP-details-NL- .
+call the method print 5.-SP-Search-SP-customer-SP-order-NL- .
+call the method print 6.-SP-Search-SP-customer-SP-payment-SP-history-NL- .
+call the method print 7.-SP-Add/Modify/Delete-SP-Delivery-SP-Staffs-NL- .
+call the method print 8.-SP-Search-SP-Delivery-SP-Staff-NL- .
+call the method print 9.-SP-Assign-SP-order-SP-to-SP-Delivery-SP-Staff-NL- .
+call the method print 0.-SP-Logout-NL- .
+print Please-SP-enter-SP-your-SP-choice: input , convert the result to an integer , substitute it for opt .
+call the method fnsorter usr opt role .
+define the method staffui usr .
+call the role staff .
+call the method print Welcome-SP- usr -SP-to-SP-Staff-SP-Index: .
+call the method print 1.-SP-View/Select-SP-Order-SP-for-SP-Delivery-NL- .
+call the method print 2.-SP-Update-SP-Delivery-SP-status-NL- .
+call the method print 3.-SP-Take-SP-feedback-SP-on-SP-delivery-NL- .
+call the method print 0.-SP-Logout-NL- .
+print Please-SP-enter-SP-your-SP-task: input , convert the result to an integer , substitute it for opt .
+call the method fnsorter usr opt role .
+define the method custui usr .
+call the role cust .
+call the method print Welcome-SP- usr -SP-to-SP-Customer-SP-Home-SP-Page: .
+call the method print 1.-SP-View-SP-category-SP-details-NL- .
+call the method print 2.-SP-View-SP-all-SP-items-NL- .
+call the method print 3.-SP-View-SP-items-SP-by-SP-category-NL- .
+call the method print 4.-SP-Place-SP-order-NL- .
+call the method print 5.-SP-Make-SP-order-NL- .
+call the method print 0.-SP-Logout-NL- .
+print Please-SP-enter-SP-the-SP-menu-SP-index: input , convert the result to an integer , substitute it for opt .
+call the method fnsorter usr opt role .
+define the method tiering r and n .
+if r equals a string ` admin `
+call the method n adminui .
+if r equals a string ` staff .
+call the method n staffui .
+call the method print No-SP-tier-SP-specified.-SP-Returning-SP-to-SP-main-SP-page.-NL- .
+call the method mainui .
+define the method login with arguments with an argument opt .
+call the method print AOSM-SP-Login-SP-Checkpoint-NL- .
+if opt equals integer 1 ,
+substitute udb customers.txt .
+otherwise if opt equals integer 2 ,
+substitute udb users.txt .
+if not ,
+call the method print No-SP-role-SP-defined.-SP-Returning-SP-to-SP-Main-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+print Please-SP-enter-SP-your-SP-username:-NL- input dettol , substitute the result for uName .
+call the method print Checking-SP-database...-SP-Please-SP-Wait...-NL- .
+try ,
+uid uName getcolumn udb integer 0 , return the result .
+call the function getrow udb uid udt .
+print Please-SP-enter-SP-your-SP-password:-NL- input dettol , substitute the result for uPwd .
+try ,
+call the method print Invalid-SP-username.-SP-Please-SP-check-SP-your-SP-input-SP-and-SP-try-SP-again-SP-later.-NL- .
+return integer 0 , return boolean True , otherwise return boolean False .
+and uPwd uid , if it evaluates to true ,
+uPwd udt , if it evaluates to true ,
+if udt ,
+call the method tiering udt , uName .
+if not ,
+call the method custui uName .
+if not ,
+call the method print Invalid-SP-username-SP-or-SP-password.-SP-Please-SP-check-SP-your-SP-input-SP-and-SP-try-SP-again-SP-later.-NL- .
+return integer 0 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Empty-SP-input.-SP-Returning-SP-to-SP-Main-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method loginhandler .
+input Press-SP-1-SP-for-SP-customer,-SP-press-SP-2-SP-for-SP-staff:-NL- ` , convert the result to an integer , substitute it for x .
+if login with an argument x , if the result equals integer 0 ,
+call the method mainui .
+define the method custreg .
+substitute baseStr Please-SP-enter-SP-your-SP- .
+call the method print Join-SP-now-SP-as-SP-our-SP-customer-SP-to-SP-enjoy-SP-more-SP-benefits!-NL- .
+print Please-SP-enter-SP-your-SP-desired-SP-username:-NL- input , substitute the result for regname .
+while regname is true ,
+call the method print Please-SP-wait-SP-while-SP-we-SP-check-SP-the-SP-username-SP-availability...-NL- .
+try ,
+call the method regname index of the first ` customers.txt getcolumn .
+call the method print Username-SP-already-SP-exist!-SP-Please-SP-proceed-SP-to-SP-login.-SP-Returning-SP-to-SP-Main-SP-UI-SP-now. .
+return integer 0 , return boolean True , otherwise return boolean False .
+if ValueError exception is caught ,
+call the method print Username-SP-available.-SP-Please-SP-proceed-SP-for-SP-next-SP-step. .
+substitute baseStr preferred-SP-password: pwd .
+substitute baseStr email-SP-address: email .
+baseStr full-SP-name: , substitute it for fname .
+substitute baseStr phone-SP-number-SP-in-SP-international-SP-format,-SP-eg-SP-+60123456789: phone .
+baseStr delivery-SP-address: , substitute the result for addr .
+substitute baseStr biological-SP-gender-SP--LRB-M/F-RRB-: gender .
+plh is a string ` 0 ` .
+substitute bStr regname pwd email fname phone addr gender plh is an empty list .
+call the function theMagic bStr details .
+call the method print User-SP-` regname `has-SP-successfully-SP-created! .
+call the method custui regname .
+if not ,
+call the method print User-SP-unable-SP-to-SP-create. and e .
+call the method print Please-SP-check-SP-if-SP-special-SP-symbols-SP-exists-SP-or-SP-the-SP-database-SP-file-SP-has-SP-been-SP-modified.-SP-Returning-SP-to-SP-Main-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+call the method print No-SP-input-SP-has-SP-been-SP-entered.-SP-Returning-SP-to-SP-Main-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method custreghandler .
+if custreg equals integer 0 ,
+call the method mainui .
+define the method delmanSubMenu .
+print Please-SP-enter-SP-username-SP-of-SP-the-SP-staff/delivery-SP-man:-NL- input , substitute the result for staffname .
+while staffname is true ,
+call the method print Checking-SP-in-SP-staff-SP-database...-NL- .
+try ,
+return first ` users.txt getcolumn staffname , substitute the result for uid .
+if ValueError exception is caught ,
+call the method print Username-SP-not-SP-found!-SP-Please-SP-make-SP-sure-SP-you-SP-entered-SP-the-SP-correct-SP-username,-SP-username-SP-are-SP-capital-SP-sensitive.-NL- .
+print Do-SP-you-SP-want-SP-to-SP-create-SP-a-SP-new-SP-user-SP-or-SP-retry-SP-input-SP-username?-NL-1.-SP-Create-SP-new-SP-user-NL-2.-SP-Retry-SP-username\x03.-SP-Return-SP-to-SP-Admin-SP-UI-NL- input , convert the result to an integer , substitute the result for d .
+if d is equal to integer 1 ,
+call the method delmanNew staffname .
+otherwise if d is not equal to integer 2 ,
+call the method delmanSubMenu .
+otherwise if d is not equal to integer 3 ,
+return integer , return boolean True , otherwise return boolean False .
+if not ,
+call the method print No-SP-input-SP-detected.-SP-Returning-SP-to-SP-Admin-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+if uid is true ,
+call the method print User-SP- staffname -SP-found.-SP-Do-SP-you-SP-want-SP-to-SP-modify-SP-or-SP-delete-SP-record?-NL- .
+print 1.-SP-Modify-NL-2.-SP-Delete-NL-3.-SP-Back-SP-to-SP-Admin-SP-Menu-NL- input , convert the result to an integer , substitute it for c .
+if c equals integer 1 ,
+call the method delmanManage uid staffname .
+return integer 1 , return boolean True , otherwise return boolean False .
+otherwise if c equals integer 2 ,
+call the method delmanByebye uid staffname .
+return integer 1 , return boolean True , otherwise return boolean False .
+otherwise if c is not equal to integer 3 ,
+return integer , return boolean True , otherwise return boolean False .
+if not ,
+call the method print No-SP-input-SP-detected.-SP-Returning-SP-to-SP-Admin-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+return integer , return boolean True , otherwise return boolean False .
+define the method delmanNew with an argument x .
+call the method print Creating-SP-new-SP-user-SP-with-SP-username-SP-` x `. .
+substitute baseStr Please-SP-enter-SP-the-SP- .
+substitute baseStr preferred-SP-password: pwd .
+substitute baseStr email-SP-address: email .
+baseStr full-SP-name: , substitute it for fname .
+substitute baseStr phone-SP-number-SP-in-SP-international-SP-format,-SP-eg-SP-+60123456789: phone .
+baseStr delivery-SP-address: , substitute the result for addr .
+baseStr role-SP-for-SP-user-LRB-admin/staff-RRB-: , substitute the result for role .
+plh is a string ` 0 ` .
+substitute bStr pwd fname phone addr email plh plh role x .
+call the function theMagic bStr details .
+call the method print User-SP-` x `has-SP-successfully-SP-created! .
+return integer 1 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print User-SP-unable-SP-to-SP-create. and e .
+call the method print Please-SP-check-SP-if-SP-special-SP-symbols-SP-exists-SP-or-SP-the-SP-database-SP-file-SP-has-SP-been-SP-modified.-SP-Returning-SP-to-SP-Main-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method delmanManage with 2 arguments : x and y with .
+call the method print Editing-SP-data-SP-of-SP-` y `. .
+if users.txt getrow , substitute the result for dt .
+print Current-SP-username:-SP- dt ,-SP-Enter-SP-new-SP-username: input dt , substitute the result for u .
+print Current-SP-password:-SP- dt ,-SP-Enter-SP-new-SP-password: input dt is true , substitute it for p .
+print Current-SP-name:-SP- dt ,-SP-Enter-SP-new-SP-name: input dt , substitute the result for f .
+print Current-SP-phone-SP-number:-SP- dt ,-SP-Enter-SP-new-SP-phone-SP-number: ` and store the result in fourth element of dt , substitute the result for m .
+if print Current-SP-address:-SP- dt ,-SP-Enter-SP-new-SP-address: ` and store the result in fourth element of dt .
+print Current-SP-email:-SP- dt ,-SP-Enter-SP-new-SP-email: input dt , substitute the result for e .
+print Current-SP-role:-SP- dt , ,-SP-Enter-SP-new-SP-role-LRB-admin/staff-RRB-: input dt , if it evaluates to true ,
+lst u p f n , e r ` 0 ` or string ` 0 ` .
+print Are-SP-you-SP-sure-SP-you-SP-want-SP-to-SP-update-SP-entry-SP-of-SP-` y `?-LRB-Y/n-RRB--NL- ` and store the result in confirm .
+if confirm equals a string ` Y is true ,
+try ,
+call the method updaterow users.txt x lst .
+call the method print User-SP-` y `-SP-has-SP-been-SP-successfully-SP-modified-SP-with-SP-new-SP-details. .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred,-SP-please-SP-try-SP-again-SP-later,-SP-or-SP-check-SP-your-SP-permission-SP-settings. .
+return integer 0 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Action-SP-aborted-SP-due-SP-to-SP-incorrect-SP-confirmation.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method delmanByebye with 2 arguments : x and y with .
+print Are-SP-you-SP-sure-SP-you-SP-want-SP-to-SP-delete-SP-` y `?-LRB-Y/n-RRB--NL- ` and store the result in confirm .
+if confirm equals a string ` Y is true ,
+try ,
+call the function open users.txt r file ,
+call the file . readlines , substitute the result for lines .
+ln is integer 0 .
+call the function open users.txt w f ,
+for every line in lines .
+ln x , if it evaluates to true ,
+call the method f . write with an argument line .
+increment ln by integer 1 ,
+call the method print User-SP-` y `-SP-has-SP-been-SP-successfully-SP-deleted. .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred,-SP-please-SP-try-SP-again-SP-later,-SP-or-SP-check-SP-your-SP-permission-SP-settings. .
+return integer 0 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Action-SP-aborted-SP-due-SP-to-SP-incorrect-SP-confirmation.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method delmanSearch .
+print Please-SP-enter-SP-the-SP-username-SP-of-SP-delivery-SP-staff-SP-to-SP-start-SP-search,-SP-query-SP-must-SP-be-SP-at-SP-least-SP-4-SP-characters: input , substitute the result for result .
+while length of result is greater than integer 4 ,
+try ,
+uid index getcolumn users.txt and name , substitute the result for result .
+getrow users.txt uid , substitute the result for of the info dictionary .
+call the method print Details-SP-of-SP-user: query .
+call the method print Full-SP-Name: ` of the info dictionary .
+call the method print Phone-SP-Number: ` of the info dictionary .
+call the method print Address: ` of the info dictionary .
+call the method print Email-SP-address: ` of the info dictionary .
+call the method print User`s:-SP-row: ` , value under the key key of the info dictionary .
+call the method print Search-SP-complete.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 1 , return boolean True , otherwise return boolean False .
+if ValueError exception is caught ,
+call the method print Username-SP-not-SP-found!-SP-Please-SP-make-SP-sure-SP-you-SP-entered-SP-the-SP-correct-SP-username,-SP-username-SP-are-SP-capital-SP-sensitive.-NL- .
+return integer 0 , return boolean True , otherwise return boolean False .
+call the method print Queried-SP-username-SP-is-SP-too-SP-short!-SP-Please-SP-input-SP-query-SP-keyword-SP-with-SP-more-SP-than-SP-4-SP-characters.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method delmanAssign .
+substitute odb orders.txt .
+substitute udb users.txt .
+call the method print Assigning-SP-staff-SP-to-SP-order-LRB-s-RRB-... .
+print Please-SP-enter-SP-the-SP-Order-SP-ID-SP-to-SP-be-SP-assigned: input , convert the result to an integer , substitute it for order .
+print Please-SP-enter-SP-the-SP-username-SP-of-SP-staff-SP-to-SP-be-SP-assigned-SP-to-SP-the-SP-order-SP- order ` : ` and store the result in delman .
+getcolumn odb 0 , substitute the result for odt .
+getcolumn udb 0 , substitute the result for udt .
+try ,
+substitute oid order odt index .
+if oid and delman udt index .
+print Confirm-SP-assigning-SP- order to-SP- delman ?-NL- ` and store the result in confirm .
+if confirm equals a string ` Y is true ,
+call the function getrow odb oid dt .
+substitute dt May delman .
+call the method updaterow odb oid dt .
+call the method print Update-SP-successful.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 1 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print No-SP-valid-SP-confirmation.-SP-Returning-SP-to-SP-Admin-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Cannot-SP-find-SP-the-SP-order-SP-ID-SP-or-SP-staff-SP-username.-SP-Please-SP-ensure-SP-both-SP-inputs-SP-are-SP-correct.-NL-Returning-SP-to-SP-Admin-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+try ,
+call the method print Something-SP-went-SP-wrong.-SP-Please-SP-try-SP-again-SP-later.-NL-Returning-SP-to-SP-Admin-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method addCat .
+substitute cfile category.txt .
+print Please-SP-enter-SP-new-SP-category-SP-name: input , substitute the result for newCat .
+try ,
+return ` . for every cat in return value of the function getcolumn cfile newCat converted to lowercase , substitute the result for catID .
+call the method print Category-SP-` newCat catID `,-SP-please-SP-use-SP-the-SP-existing-SP-category.-NL--SP-Returning-SP-to-SP-Admin-SP-UI. `-SP-already-SP-exist-SP-with-SP-Category-SP-ID-SP-` .
+return integer 0 , return boolean True , otherwise return boolean False .
+if ValueError exception is caught ,
+call the method print Category-SP-name-SP-available,-SP-please-SP-proceed-SP-to-SP-enter-SP-details-SP-for-SP-new-SP-category. .
+print Enter-SP-description-SP-for-SP-new-SP-category-SP--LRB-Not-SP-more-SP-than-SP-50-SP-words-RRB-: input , substitute the result for catDes .
+last element of getcolumn cfile name converted to an integer 1 , substitute the result for newcatID .
+plh is integer 0 .
+substitute catList newcatID newCat catDes plh is an empty list .
+call the method print Category-SP-` newCat newcatID `has-SP-successfully-SP-created!-NL-Category-SP-ID: .
+return integer 1 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Category-SP-unable-SP-to-SP-create. and e .
+call the method print Please-SP-check-SP-if-SP-special-SP-symbols-SP-exists-SP-or-SP-the-SP-database-SP-file-SP-has-SP-been-SP-modified.-SP-Returning-SP-to-SP-Main-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method modCat .
+substitute cfile category.txt .
+print Please-SP-enter-SP-category-SP-name: input , substitute the result for catname .
+call the method print Please-SP-wait-SP-while-SP-system-SP-is-SP-retrieving-SP-data... .
+while catname is true ,
+try ,
+return getcolumn cfile catname , substitute the result for cid .
+if ValueError exception is caught ,
+call the method print Category-SP-not-SP-found!-SP-Make-SP-sure-SP-you-SP-have-SP-entered-SP-the-SP-exact-SP-same-SP-name-SP-of-SP-the-SP-category.-NL-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+try ,
+call the function getrow cfile cid dt .
+try ,
+call the method print An-SP-error-SP-occurred-SP-when-SP-trying-SP-to-SP-retrieve-SP-data.-SP-Please-SP-try-SP-again-SP-later.-NL-Returning-SP-to-SP-Admin-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+print Current-SP-category-SP-name:-SP- dt ,-SP-Enter-SP-new-SP-category-SP-name: input dt , substitute the result for m .
+call the input print Current-SP-category-SP-description:-SP- dt ,-SP-Enter-SP-new-SP-category-SP-description: dt , substitute the result for d .
+substitute lst cid n , integer 0 ,
+print Are-SP-you-SP-sure-SP-you-SP-want-SP-to-SP-update-SP-entry-SP-of-SP-` catname `?-LRB-Y/n-RRB--NL- ` and store the result in confirm .
+if confirm equals a string ` Y is true ,
+try ,
+call the method updaterow cfile cid lst .
+call the method print Category-SP-` n `-SP-has-SP-been-SP-successfully-SP-modified-SP-with-SP-new-SP-data. .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred,-SP-please-SP-try-SP-again-SP-later,-SP-or-SP-check-SP-your-SP-permission-SP-settings. .
+return integer 0 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Action-SP-aborted-SP-due-SP-to-SP-incorrect-SP-confirmation.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer , return boolean True , otherwise return boolean False .
+define the method addItem .
+substitute pfile products.txt .
+substitute cfile category.txt .
+print Please-SP-enter-SP-new-SP-item-SP-name: input , substitute the result for newItem .
+try ,
+convert newItem getcolumn pfile i - th index , substitute the result for productID .
+call the method print Product-SP-` newItem productID `,-SP-please-SP-choose-SP-other-SP-name-SP-or-SP-use-SP-the-SP-existing-SP-entry.-NL--SP-Returning-SP-to-SP-Admin-SP-UI. `-SP-already-SP-exist-SP-with-SP-Category-SP-ID-SP-` .
+return integer 0 , return boolean True , otherwise return boolean False .
+if ValueError exception is caught ,
+call the method print Product-SP-name-SP-available.-SP-Please-SP-proceed-SP-to-SP-choose-SP-the-SP-relevant-SP-category-SP-from-SP-list-SP-below. .
+call the function getcolumn cfile catName .
+getcolumn cfile 0 , substitute the result for catID .
+i is integer 1 .
+for every namae catName ,
+call the method print namae .-SP- catID .
+increment i by integer 1 .
+print Please-SP-select-SP-the-SP-category-SP-of-SP-the-SP-new-SP-item: input , convert the result to an integer , substitute it for selCat .
+print Enter-SP-description-SP-for-SP-new-SP-item-SP--LRB-Not-SP-more-SP-than-SP-100-SP-words-RRB-: input , substitute the result for itemDes .
+print Enter-SP-available-SP-stock-SP-for-SP-item: input , convert the result to an integer , substitute it for itemStk .
+print Enter-SP-retail-SP-price-SP-for-SP-item: input , convert the result to an integer , substitute it for itemRM .
+last element of getcolumn pfile name converted to an integer 1 , substitute the result for newitemID .
+substitute itemList newitemID newItem itemDes itemStk itemRM selCat is an empty list .
+call the method print New-SP-product-SP-` newItem newitemID `has-SP-successfully-SP-created!-NL-Category-SP-ID: .
+return integer 1 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Product-SP-unable-SP-to-SP-create. and e .
+call the method print Please-SP-check-SP-if-SP-special-SP-symbols-SP-exists-SP-or-SP-the-SP-database-SP-file-SP-has-SP-been-SP-modified.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method modItem .
+substitute pfile products.txt .
+print Please-SP-enter-SP-item-SP-name: input , substitute the result for itemname .
+call the method print Please-SP-wait-SP-while-SP-system-SP-is-SP-retrieving-SP-data... .
+while itemname is true ,
+try ,
+return getcolumn pfile itemname , substitute the result for iid .
+if ValueError exception is caught ,
+call the method print Item-SP-not-SP-found!-SP-Make-SP-sure-SP-you-SP-have-SP-entered-SP-the-SP-exact-SP-same-SP-name-SP-of-SP-the-SP-product.-NL-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+try ,
+call the function getrow pfile iid dt .
+try ,
+call the method print An-SP-error-SP-occurred-SP-when-SP-trying-SP-to-SP-retrieve-SP-data.-SP-Please-SP-try-SP-again-SP-later.-NL-Returning-SP-to-SP-Admin-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+print Current-SP-product-SP-name:-SP- dt ,-SP-Enter-SP-new-SP-product-SP-name: input dt , substitute the result for m .
+call the input print Current-SP-product-SP-description:-SP- dt ,-SP-Enter-SP-new-SP-product-SP-description: dt , substitute the result for d .
+print Current-SP-product-SP-stock:-SP- dt ,-SP-Enter-SP-new-SP-stock-SP-quantity: ` and store the result in fourth element of dt , substitute the result for s .
+print Current-SP-product-SP-retail-SP-price:-SP- dt ,-SP-Enter-SP-new-SP-retail-SP-price: input dt is true , substitute it for p .
+print Current-SP-product-SP-category:-SP- dt ,-SP-Enter-SP-new-SP-product-SP-category: input dt is true , substitute it for c .
+substitute lst iid n d s dt p c ,
+print Are-SP-you-SP-sure-SP-you-SP-want-SP-to-SP-update-SP-entry-SP-of-SP-` itemname `?-LRB-Y/n-RRB--NL- ` and store the result in confirm .
+if confirm equals a string ` Y is true ,
+try ,
+call the method updaterow pfile iid lst .
+call the method print Product-SP-` n `-SP-has-SP-been-SP-successfully-SP-modified-SP-with-SP-new-SP-data. .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred,-SP-please-SP-try-SP-again-SP-later,-SP-or-SP-check-SP-your-SP-permission-SP-settings. .
+return integer 0 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Action-SP-aborted-SP-due-SP-to-SP-incorrect-SP-confirmation.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer , return boolean True , otherwise return boolean False .
+define the method listCat .
+substitute cfile category.txt .
+call the method print Listing-SP-all-SP-the-SP-available-SP-categories: .
+try ,
+getcolumn cfile 0 , substitute the result for clist .
+for every cid clist ,
+getrow cfile cid converted to an integer , substitute it for dt .
+call the method print Category-SP-ID:-SP- cid .
+call the method print Category-SP-name:-SP- dt .
+call the method print Category-SP-description:-SP- dt .
+call the method print Successfully-SP-retrieved-SP-all-SP-data-SP-for-SP- cfile .-NL- .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred,-SP-please-SP-try-SP-again-SP-later,-SP-or-SP-check-SP-the-SP-files-SP-integrity. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method listItembyCat .
+substitute pfile products.txt .
+try ,
+call the method listCat .
+try ,
+return integer 0 , return boolean True , otherwise return boolean False .
+print Please-SP-enter-SP-the-SP-choice-SP-of-SP-category-SP-using-SP-its-SP-Category-SP-ID: input , convert the result to an integer , substitute it for catChoice .
+getcolumn pfile 6 , substitute the result for tmplist .
+i is integer 1 .
+iList is an empty list .
+for every item in tmplist ,
+item catChoice , if it evaluates to true ,
+call the method iList . append with an argument i .
+increment i by integer 1 .
+try ,
+call the method print Products-SP-under-SP-category-SP- catChoice .
+for every index in iList ,
+getrow pfile index , substitute the result for dt .
+call the method print Product-SP-ID:-SP- dt .
+call the method print Product-SP-name:-SP- dt .
+call the method print Product-SP-description:-SP- dt .
+call the method print Product-SP-stock-SP-quantity:-SP- dt .
+call the method print Product-SP-sold-SP-quantity:-SP- dt .
+call the method print Product-SP-retail-SP-price:-SP- dt .
+call the method print End-SP-of-SP-database.-SP-Returning-SP-to-SP-Admin-SP-UI .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred.-SP-Please-SP-check-SP-file-SP-permission-SP-or-SP-restart-SP-the-SP-program.-SP-Returning-SP-to-SP-Admin-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method listallItem .
+substitute pfile products.txt .
+call the method print Listing-SP-all-SP-the-SP-available-SP-products: .
+try ,
+getcolumn pfile 0 , substitute the result for plist .
+for every pid plist ,
+getrow pfile pid converted to an integer , substitute it for dt .
+call the method print Product-SP-ID:-SP- dt .
+call the method print Product-SP-name:-SP- dt .
+call the method print Product-SP-description:-SP- dt .
+call the method print Product-SP-stock-SP-quantity:-SP- dt .
+call the method print Product-SP-sold-SP-quantity:-SP- dt .
+call the method print Product-SP-retail-SP-price:-SP- dt .
+call the method print Successfully-SP-retrieved-SP-all-SP-data-SP-for-SP- pfile .-NL- .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred,-SP-please-SP-try-SP-again-SP-later,-SP-or-SP-check-SP-the-SP-files-SP-integrity. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method itemSubMenu with an argument u .
+print Press-SP-1-SP-to-SP-add-SP-new-SP-item,-SP-press-SP-2-SP-to-SP-modify-SP-item: input , convert the result to an integer , substitute it for opt .
+if opt equals integer 1 ,
+call the method addItem .
+call the method adminui with an argument u .
+otherwise if opt equals integer 2 ,
+call the method modItem .
+call the method adminui with an argument u .
+if not ,
+call the method print An-SP-case-SP-error-SP-occurred.-SP-Please-SP-try-SP-again-SP-later.-SP-Returning-SP-to-SP-Admin-SP-UI .
+call the method adminui with an argument u .
+call the method adminui with an argument u .
+define the method placeOrder u trm return an integer 0 .
+substitute pdb products.txt .
+print Select-SP-your-SP-item-SP-using-SP-product-SP-ID: input , substitute the result for sel .
+call the method listallItem .
+try ,
+call the function getrow pdb sel pdt .
+if pdt is true ,
+print Please-SP-enter-SP-order-SP-quantity-SP-for-SP-this-SP-product: input , substitute the result for qtt .
+convert qtt is lesser than or equal to pdt , if it evaluates to true ,
+pdt qtt converted to an integer , substitute it for rm .
+call the method print Item-SP-total-SP-will-SP-be-SP-RM rm .
+call the method addtoCart sel qtt rm items trm u .
+return integer 1 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Quantity-SP-cannot-SP-be-SP-more-SP-than-SP-available-SP-stock!-SP-Return-SP-to-SP-customer-SP-page. .
+return integer 0 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred.-SP-Please-SP-make-SP-you-SP-have-SP-entered-SP-correct-SP-input.-SP-Returning-SP-to-SP-Customer-SP-page. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method addtoCart usr pid qtt rm trm opt . items , integer 0 ,
+substitute odb orders.txt .
+substitute tlst qtt pid is an empty list .
+try ,
+if opt opt input print Do-SP-you-SP-want-SP-to-SP-checkout-SP-now-SP-or-SP-continue-SP-shopping?-NL-1.-SP-Continue-NL-2.-SP-Checkout-NL-3.-SP-Discard-SP-cart converted to an integer , substitute it for opt .
+if opt equals integer 1 ,
+tlst . items , substitute the result for lst .
+convert trm rm converted to an integer , substitute the result for ttl .
+call the method placeOrder usr lst ttl .
+otherwise if opt equals integer 2 ,
+last element of getcolumn odb name converted to an integer 1 , substitute the result for oid .
+call the function gettime , substitute the result for odt .
+tlst . items , substitute the result for po .
+substitute tpp trm converted into an integer , append the result to rm converted into an integer .
+des is integer 0 .
+cid ded rat deu plh is integer 0 .
+substitute lst oid odt po cid usr tpp des ded rat deu plh is an empty list .
+call the method writeto odb lst .
+call the method print Order-SP-created.-SP-Your-SP-order-SP-number-SP-is: oid .
+return integer 1 , return boolean True , otherwise return boolean False .
+otherwise if opt is not equal to integer 3 ,
+print Are-SP-you-SP-sure-SP-to-SP-discard-SP-cart?-SP-Once-SP-done-SP-no-SP-revert-SP-can-SP-be-SP-done-LRB-Y/n-RRB--RRB-: ` and store the result in confirm .
+if confirm equals a string ` Y is true ,
+call the method print Discarding-SP-cart.-SP-Will-SP-return-SP-to-SP-customer-SP-home-SP-page .
+return integer , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Invalid-SP-confirmation,-SP-will-SP-return-SP-back-SP-to-SP-order-SP-page-SP-without-SP-new-SP-item-SP-added. .
+call the method placeOrder usr items trm .
+if not ,
+call the method print No-SP-valid-SP-options.-SP-Returning-SP-to-SP-order-SP-page-SP-with-SP-existing-SP-cart-SP-items. .
+call the method placeOrder usr items trm .
+try ,
+call the method print An-SP-error-SP-occurred,-SP-Please-SP-try-SP-again-SP-later.-SP-Saving-SP-current-SP-cart-SP-as-SP-unpaid-SP-order. .
+call the method addtoCart usr , integer 0 , integer 0 , integer 0 , items trm integer 2 .
+define the method makePayment with an argument u .
+substitute pdb payments.txt .
+substitute odb orders.txt .
+tlist is an empty list .
+call the method print Searching-SP-for-SP-unpaid-SP-order-SP-for-SP-user-SP- u ... .
+try ,
+substitute getcolumn odb , dt .
+getcolumn odb integer 4 , substitute the result for dt1 .
+c is integer 0 .
+for every i in dt .
+if i equals to integer 0 , dt1 u perform ,
+call the method c tlist .
+increment by integer 1 , substitute the result for c .
+if not ,
+increment by integer 1 , substitute the result for c .
+skip this loop iteration .
+tlist , for every t in the result ,
+call the method displayOrder getrow odb t .
+print Please-SP-enter-SP-orderID-SP-to-SP-select-SP-order-SP-and-SP-pay: input , substitute the result for opt .
+if opt is true ,
+substitute dt2 getrow odb opt .
+print Please-SP-enter-SP-your-SP-TPCard-SP-number: input , substitute the result for tpc .
+print Amount-SP- dt2 will-SP-be-SP-charged-SP-from-SP-card-SP- tpc .-NL-Please-SP-confirm-SP--LRB-Y/n-RRB-: ` and store the result in confirm .
+if confirm equals a string ` Y and tpc ,
+pid is integer getcolumn pdb first and last element .
+substitute tpcard: tpc pmd .
+substitute dt2 pmt .
+call the hash value of the tpc pmt .
+call the function gettime , substitute the result for pdt .
+plh is integer 0 .
+substitute lst pmd pmt cc pdt plh pid is an empty list .
+call the method writeto pdb lst .
+call the method print Payment-SP-successful!-SP-Returning-SP-to-SP-home-SP-page. .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print Error-SP-occurred.-SP-Please-SP-try-SP-again-SP-later. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method listallDelOrder with an argument u .
+substitute odb orders.txt .
+lst is an empty list .
+c is integer 0 .
+call the method print Fetching-SP-list-SP-of-SP-delivery-SP-order-SP-for-SP- u ` .
+try ,
+call the function getcolumn odb May ols .
+for every i in ols ,
+if i is equal to u .
+call the method c lst .
+increment by integer 1 , substitute the result for c .
+if not ,
+increment by integer 1 , substitute the result for c .
+skip this loop iteration .
+RemovedInDjango19Warning and stacklevel set to integer 2 . if length of lst is greater than integer 0 ,
+for every o in lst ,
+call the method o odb getrow , substitute the result for dt .
+call the method print Order-SP-ID:-SP- dt .
+call the method print Order-SP-delivery-SP-status:-SP- dt .
+call the method print Order-SP-delivered-SP-date:-SP- 7 dt .
+call the method print Order-SP-feedback:-SP- , dt .
+call the method print Staff-SP-in-SP-charger:-SP- May dt .
+if not ,
+call the method print No-SP-order-SP-found.-SP-Returning-SP-to-SP-Staff-SP-UI. .
+return integer , return boolean True , otherwise return boolean False .
+call the method print Delivery-SP-order-SP-query-SP-completed.-SP-Returning-SP-to-SP-Staff-SP-UI. .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred,-SP-please-SP-try-SP-again-SP-later.-SP-Returning-SP-to-SP-Staff-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method orderUpdate with an argument u .
+substitute odb orders.txt .
+call the method listallDelOrder with an argument u .
+print Please-SP-input-SP-the-SP-order-SP-ID-SP-to-SP-update: input , substitute the result for result .
+if result is true ,
+try ,
+call the method query odb getrow , substitute the result for dt .
+try ,
+call the method print Order-SP-not-SP-found,-SP-please-SP-check-SP-your-SP-input.-SP-Returning-SP-to-SP-Staff-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print No-SP-input-SP-detected.-SP-Returning-SP-to-SP-Staff-SP-UI .
+return integer , return boolean True , otherwise return boolean False .
+if dt 7 is not equal to string ` 0 ` .
+call the method print Order-SP-already-SP-completed,-SP-no-SP-further-SP-update-SP-required.-SP-Returning-SP-to-SP-Staff-SP-UI .
+return integer , return boolean True , otherwise return boolean False .
+print Please-SP-enter-SP-the-SP-current-SP-status-SP-for-SP-the-SP-order:-NL-1.-SP-pending-NL-2.-SP-delivering-NL-3.-SP-completed input , convert the result to an integer , substitute it for action .
+if action equals integer 1 ,
+substitute 10 dt .
+otherwise if action equals to integer 2 .
+substitute 11 dt .
+otherwise if action equals to integer 3 .
+substitute 12 dt .
+substitute dt 7 gettime .
+try ,
+call the method updaterow odb query dt .
+call the method print Order-SP- query successfully-SP-updated.-SP-Returning-SP-to-SP-Staff-SP-UI .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred,-SP-please-SP-try-SP-again-SP-later.-SP-Returning-SP-to-SP-Staff-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method orderFeedback .
+substitute odb orders.txt .
+print Please-SP-input-SP-the-SP-order-SP-ID-SP-to-SP-give-SP-feedback: input , convert the result to an integer , substitute it for oid .
+if oid is true ,
+try ,
+call the function getrow odb oid dt .
+call the method print Please-SP-input-SP-the-SP-rating-SP-number: .
+try ,
+call the method print Invalid-SP-Order-SP-ID.-SP-Please-SP-check-SP-the-SP-input-SP-and-SP-try-SP-again.-SP-Returning-SP-to-SP-Staff-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print Invalid-SP-order-SP-ID.-SP-Returning-SP-to-SP-Staff-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+if dt and ` , where ` % s ` is replaced with first element of dt , is not equal to integer 0 ,
+print 1.-SP-Very-SP-bad-NL-2.-SP-Bad-NL-3.-SP-Neutral\x04.-SP-Good-NL-5.-SP-Very-SP-good input , convert the result to an integer , substitute it for fb .
+if name is smaller than fb integer 6 ,
+substitute fb , dt .
+call the method writeto odb dt , return the result .
+if not ,
+call the method print Invalid-SP-input.-SP-Make-SP-sure-SP-its-SP-within-SP-the-SP-given-SP-range.-SP-Returning-SP-to-SP-Staff-SP-UI .
+return integer 0 , return boolean True , otherwise return boolean False .
+if not ,
+call the method print You-SP-are-SP-not-SP-allowed-SP-to-SP-give-SP-feedback-SP-on-SP-this-SP-order,-SP-Returning-SP-to-SP-Staff-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method custOrderQuery .
+substitute odb orders.txt .
+print Please-SP-enter-SP-customer-SP-order-SP-ID-SP-to-SP-start-SP-search: input , convert the result to an integer , substitute the result for result .
+if result is true ,
+try ,
+call the method query odb getrow displayOrder .
+call the method print Query-SP-completed.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 1 , return boolean True , otherwise return boolean False .
+if ValueError exception is caught ,
+call the method print Order-SP-not-SP-found!-SP-Please-SP-make-SP-sure-SP-you-SP-entered-SP-the-SP-correct-SP-order-SP-ID-SP-with-SP-numbers-SP-only.-NL- .
+return integer 0 , return boolean True , otherwise return boolean False .
+call the method print No-SP-query-SP-detected.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method custPaymentQuery .
+substitute pdb payments.txt .
+print Please-SP-enter-SP-payment-SP-ID-SP-to-SP-start-SP-search: input , convert the result to an integer , substitute the result for result .
+if result is true ,
+try ,
+call the method query pdb getrow displayPayment .
+call the method print Query-SP-completed.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 1 , return boolean True , otherwise return boolean False .
+if ValueError exception is caught ,
+call the method print Payment-SP-record-SP-not-SP-found!-SP-Please-SP-make-SP-sure-SP-you-SP-entered-SP-the-SP-correct-SP-payment-SP-ID-SP-with-SP-numbers-SP-only.-NL- .
+return integer 0 , return boolean True , otherwise return boolean False .
+call the method print No-SP-query-SP-detected.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method listcustOrder .
+substitute odb orders.txt .
+call the method print Listing-SP-out-SP-all-SP-customer-SP-orders... .
+try ,
+getcolumn odb 0 , substitute the result for olist .
+for every oid olist ,
+call the method displayOrder getrow odb oid .
+call the method print Listing-SP-completed.-SP-Returning-SP-to-SP-Main-SP-UI. .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method listcustPayment .
+substitute pdb payments.txt .
+call the method print Listing-SP-out-SP-all-SP-payment-SP-records... .
+try ,
+getcolumn pdb 0 , substitute the result for plist .
+for every pid plist ,
+call the method displayPayment getrow pdb pid .
+call the method print Listing-SP-completed.-SP-Returning-SP-to-SP-Main-SP-UI. .
+return integer 1 , return boolean True , otherwise return boolean False .
+try ,
+call the method print An-SP-error-SP-occurred.-SP-Returning-SP-to-SP-Admin-SP-UI. .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method fnsorter u o r .
+r to lowercase , substitute the result for r .
+if r equals a string ` admin `
+if o is equal to integer 1 ,
+call the method addCat .
+call the method adminui with an argument u .
+otherwise if o is not equal to integer 2 ,
+call the method modCat .
+call the method adminui with an argument u .
+otherwise if o is not equal to integer 3 ,
+call the method itemSubMenu with an argument u .
+otherwise if o equals integer 4 ,
+call the method listallItem .
+call the method adminui with an argument u .
+otherwise if o for .
+call the method custOrderQuery .
+call the method adminui with an argument u .
+otherwise if o is equal to integer 6 ,
+call the method custPaymentQuery .
+call the method adminui with an argument u .
+otherwise if o is not equal to integer 7 ,
+call the method delmanSubMenu .
+otherwise if o ,
+call the method delmanSearch .
+call the method adminui with an argument u .
+otherwise if o May .
+call the method delmanAssign .
+call the method adminui with an argument u .
+otherwise if o is equal to integer 0 ,
+call the method logout .
+if not ,
+call the method criterr .
+otherwise if r staff .
+if o is equal to integer 1 ,
+call the method listallDelOrder with an argument u .
+call the method staffui with an argument u .
+otherwise if o is not equal to integer 2 ,
+call the method orderUpdate with an argument u .
+call the method staffui with an argument u .
+otherwise if o is not equal to integer 3 ,
+call the method orderFeedback .
+call the method staffui with an argument u .
+otherwise if o is equal to integer 0 ,
+call the method logout .
+if not ,
+call the method criterr .
+otherwise if r cust .
+if o is equal to integer 1 ,
+call the method listCat .
+call the method custui with an argument u .
+otherwise if o is not equal to integer 2 ,
+call the method listallItem .
+call the method custui with an argument u .
+otherwise if o is not equal to integer 3 ,
+call the method listItembyCat .
+call the method custui with an argument u .
+otherwise if o equals integer 4 ,
+call the method placeOrder with an argument u .
+call the method custui with an argument u .
+otherwise if o for .
+call the method makePayment with an argument u .
+call the method custui with an argument u .
+otherwise if o is equal to integer 0 ,
+call the method logout .
+if not ,
+call the method criterr .
+otherwise if r guest .
+if o is equal to integer 1 ,
+call the method listItembyCat .
+call the method mainui .
+otherwise if o is not equal to integer 2 ,
+call the method loginhandler .
+otherwise if o is not equal to integer 3 ,
+call the method custreghandler .
+otherwise if o is equal to integer 0 ,
+call the method exit .
+if not ,
+call the method criterr .
+if not ,
+call the method criterr .
+define the method displayOrder l .
+c is integer 0 .
+column Order-SP-ID:-SP- Placeholder:-SP- Delivery-SP-info:-SP- Order-SP-feedback:-SP- Order-SP-delivered-SP-date:-SP- Order-SP-delivery-SP-status:-SP- Order-SP-total-SP-amount:-SP- Customer`s-SP-username:-SP- Associated-SP-payment-SP-ID:-SP- Products:-SP- Order-SP-created-SP-time:-SP- is an empty list .
+for every i in l .
+print column c i - th to the standard output .
+increment by integer 1 , substitute the result for c .
+return integer 1 , return boolean True , otherwise return boolean False .
+define the method displayPayment l .
+c is integer 0 .
+column Payment-SP-ID:-SP- Payment-SP-time:-SP- Confirmation-SP-code:-SP- Payment-SP-amount:-SP- Payment-SP-method:-SP- is an empty list .
+for every i in l .
+print column c i - th to the standard output .
+increment by integer 1 , substitute the result for c .
+return integer 1 , return boolean True , otherwise return boolean False .
+define the method gettime .
+substitute tfile reow.txt .
+call the os . open with an argument file , on the result call the method O_RDWR tfile , substitute the result for reow .
+call the method os . reow testline .
+call the method reow .
+call the function os . path . getmtime tfile readtime .
+call the os . remove function with argument tfile .
+if readtime , return boolean True , otherwise return boolean False .
+define the method getcolumn filename and co .
+cdict is an empty list .
+call the function open filename file ,
+call the file . readlines linesanitize , for every line in result ,
+call the method cdict co element of line , split it by ` ; ` ,
+close file file .
+if cdict , return boolean True , otherwise return boolean False .
+define the method getrow filename and ro .
+call the function open filename file ,
+call the file . readlines linesanitize , substitute the result for data .
+call the method ro by ` ; ` , substitute the result for cdict .
+if cdict , return boolean True , otherwise return boolean False .
+define the method writeto with 2 arguments dt and f .
+try ,
+call the function f , string ` w ` and open file ,
+call the method dt by ` ; ` , write the result to file .
+return integer 1 , return boolean True , otherwise return boolean False .
+if BaseException , renamed to e , exception is caught ,
+call the method print An-SP-error-SP-occurred: and e .
+if e , return boolean True , otherwise return boolean False .
+define the method updaterow file row and data .
+try ,
+call the function open file r+ filestream ,
+call the method filestream readlines , substitute the result for lines .
+ln is integer 0 .
+for every line in lines .
+if ln row is true ,
+call the method filestream . write with an argument string ` ; ` , substitute the result for data .
+if not ,
+call the method filestream line .
+increment ln by integer 1 ,
+call the method filestream . writelines field , substitute the result for data .
+return integer 1 , return boolean True , otherwise return boolean False .
+if BaseException , renamed to e , exception is caught ,
+call the method print An-SP-error-SP-occurred:-SP- and e .
+return integer 0 , return boolean True , otherwise return boolean False .
+define the method theMagic bstring .
+c is integer 0 .
+lst is an empty list .
+for every item in bstring ,
+call the first occurrence of ` : ` , if it evaluates to true ,
+call the first occurrence of name , if it evaluates to true ,
+print with an argument item , use the result as an argument for the call to the input , substitute the result for titem .
+if input print with an argument item , use the result as an argument for the call to the lst titem datavalidate titem is not equal to integer 0 ,
+increment by integer 1 , substitute the result for c .
+otherwise if . find with an argument : string ` email ` .
+print with an argument item , use the result as an argument for the call to the input , substitute the result for titem .
+if input print with an argument item , use the result as an argument for the call to the lst titem datavalidate titem 2 is not equal to integer 0 ,
+increment by integer 1 , substitute the result for c .
+otherwise if item with an argument phone .
+print with an argument item , use the result as an argument for the call to the input , substitute the result for titem .
+if input print with an argument item , use the result as an argument for the call to the lst titem datavalidate titem for is not equal to integer 0 ,
+increment by integer 1 , substitute the result for c .
+otherwise if . find with an argument : string ` address ` .
+print with an argument item , use the result as an argument for the call to the input , substitute the result for titem .
+if input print with an argument item , use the result as an argument for the call to the lst titem datavalidate titem 4 is not equal to integer 0 ,
+increment by integer 1 , substitute the result for c .
+if not ,
+call the method titem lst .
+increment by integer 1 , substitute the result for c .
+if not ,
+call the method lst bstring c .
+increment by integer 1 , substitute the result for c .
+if lst , return boolean True , otherwise return boolean False .
+define the method linesanitize x . call the method .-NL- x , on the result call the method strip , on the result call the method strip , return the result .
+define the method dettol x . call the method \\:; x , on the result call the method strip , on the result call the method strip , return the result .
+define the method logout mainui .
+define the method criterr .
+call the method print Unexpected-SP-error:-SP-Invalid-SP-argument.-SP-Please-SP-follow-SP-the-SP-instructions-SP-given,-SP-or-SP-contact-SP-software-SP-support. .
+call the method exit .
+define the method datavalidate dt and param .
+if param is equal to integer 1 ,
+if dt with an argument c , isupper dt is an empty list .
+otherwise if param is not equal to integer 2 ,
+if dt . find with an argument : string ` . ` and integer 1 and last character ` @ ` , result of the call to the method dt . find with an argument dt , return the result .
+otherwise if param is not equal to integer 3 ,
+if is not equal to integer - 1 , dt . with an argument c , for every c in dt c . isdigit , convert the result to an integer , return the result .
+otherwise if param equals integer 4 ,
+if dt is not equal to integer - 1 , dt .
+if not ,
+if dt , return boolean True , otherwise return boolean False .
+define the method init .
+call the method print Welcome-SP-to-SP-APU-SP-Online-SP-Shopping-SP-Mall-LRB-AOSM-RRB-!-NL--NL- .
+fileList users.txt customers.txt products.txt orders.txt is an empty list .
+for every f in fileList ,
+try ,
+call the os . open with an argument file , on the result call the method O_RDWR f .
+call the method os . close .
+if OSError , renamed to e , exception is caught ,
+call the method print An-SP-error-SP-occurred.-SP-Please-SP-try-SP-to-SP-create-SP-` f `-SP-manually-NL- .
+raise an exception e .
+try ,
+call the method exit .
