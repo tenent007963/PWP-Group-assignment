@@ -1,3 +1,4 @@
 0;testing;Test product for development purpose, please do not place any order on this item, no refund will be issued.;69;0;1234.56;0
 1;test product;Banana item for pre-prod testing;99;0;99.87;1
 2;Little potato;Little potato that grows in Vegetable Garden;999;0;1.5;0
+

@@ -9,7 +9,7 @@ as the program cannot handle these convincingly
 
 import re
 
-python_file = 'main.py'
+python_file = 'rawcode - commentless.txt'
 work_file = None
 
 basic_conversion_rules = {

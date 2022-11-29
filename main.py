@@ -482,7 +482,7 @@ def listallItem():
     try:
         plist = getcolumn(pfile, 0)
         for pid in plist:
-            dt = getrow(pfile, (int(pid)-1))
+            dt = getrow(pfile, (int(pid)))
             print('Product ID: ', dt[0]) 
             print('Product name: ', dt[1])
             print('Product description: ', dt[2])
@@ -895,7 +895,7 @@ def getcolumn(filename, co):
     try:
         with open(filename, 'r') as file:
             for line in file.readlines():
-                if line != '':
+                if line != '\n':
                     cdict.append(line.split(";")[int(co)].rstrip('\n'))    
         file.close()
         return cdict
