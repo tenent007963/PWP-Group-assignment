@@ -292,7 +292,7 @@ def addCat():
     catDes = input('Enter description for new category (Not more than 50 words):')
     newcatID = int(getcolumn(cfile, 0)[-1]) + 1
     plh = 0
-    catList = [newcatID, newCat, catDes, plh] #categoryID;category name;description;placeholder.
+    catList = [newcatID, newCat, catDes, plh]
     if (e := writeto(cfile, catList)) == 1:
         print('Category "', newCat, '" has successfully created!\nCategory ID:', newcatID, '\n')
         return 1
@@ -348,7 +348,7 @@ def addItem():
     itemStk = int(input('Enter available stock for item:'))
     itemRM = float(input('Enter retail price for item:'))
     newitemID = int(getcolumn(pfile, 0)[-1]) + 1
-    itemList = [newitemID, newItem, itemDes, itemStk, 0, itemRM, selCat] #productID;product title;product description;stock quantity;sold quantity;retail price;categoryID.
+    itemList = [newitemID, newItem, itemDes, itemStk, 0, itemRM, selCat]
     if (e := writeto(pfile, itemList)) == 1:
         print('New product "', newItem, '" has successfully created!\nProduct ID:', newitemID, '\n')
         return 1
@@ -527,8 +527,8 @@ def makePayment(u):
     tlist = []
     print('Searching for unpaid order for user ',u ,'...')
     try:
-        dt = getcolumn(odb, 3)    #paymentID
-        dt1 = getcolumn(odb, 4)   #cust username
+        dt = getcolumn(odb, 3)
+        dt1 = getcolumn(odb, 4)
         c = 0
         for i in dt:
             if (i == '0') & (dt1[c] == u):
